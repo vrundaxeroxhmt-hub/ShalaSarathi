@@ -1,198 +1,200 @@
-# ShalaSarathi — Product Specification & Technical Blueprint
+# ShalaSarathi — Teacher Community & School Work Assistant
 
-## 1. Executive Summary
+> **Core mission:** શિક્ષકને paperworkમાંથી મુક્ત કરીને શિક્ષણ માટે વધુ સમય આપવો.
 
-ShalaSarathi is a Gujarati-first, offline-first utility app for Primary School Teachers, Subject Teachers and Principals / HTAT in Gujarat (Grades 1–8).
+## 1. Product Vision
 
-**Core promise:** enter school information once → select a tool/template → enter only document-specific data → generate, save, print or export locally.
+ShalaSarathi is a Gujarati-first platform for Gujarat school teachers, subject teachers and Principals / HTAT. It is **not primarily a question-paper app**. The primary identity is a **Teacher Community**, supported by free school-work utilities that reduce repetitive paperwork.
 
-The product combines academic planning, assessment, administration, finance, school documentation and creative school-community tools.
+### Core positioning
 
-### Product pillars
-- Academic: lesson planner, teacher diary, timetable, question papers
-- Assessment: SCE, examination sheets, cumulative results
-- Finance: Rojmel and grant-wise expenses
-- PM Poshan: daily/monthly calculations
-- Administration: letters, certificates, notices, registers
-- Creative: Aaj no Deepak, Aaj nu Gulab, assembly frames
-- Documents: local PDF/image generation
-- Offline-first: core workflows work without internet
+> **ShalaSarathi — શિક્ષકોનું પોતાનું Community**
+>
+> **“શિક્ષકનું કામ સરળ બનાવવાનું, શિક્ષણ માટે સમય બચાવવાનું.”**
 
----
+The product has three layers:
 
-## 2. Product Vision & UX Principles
+1. **Teacher Community** — teachers share and discover useful material.
+2. **School Work Assistant** — simplify Patrak, Rojmel, grants, purchases, letters, certificates, registers and reports.
+3. **Teaching Tools** — question papers, worksheets, lesson planning, activities and related resources.
 
-### Vision
-> **“એક વાર માહિતી भरो → રોજનું શિક્ષણ, પરીક્ષા, હિસાબ અને શાળાનું documentation સરળતાથી તૈયાર કરો.”**
+### Product philosophy
 
-### Zero/minimal typing
-Prefer selection over repetitive typing:
+**Basic teacher utility should be free.** The product should not make a teacher pay merely to complete ordinary school paperwork.
 
-`ધોરણ → વિષય → પાઠ → તારીખ`
-
-and:
-
-`School Profile → Letter/Patrak → Template → Student/Staff → Generate PDF`
-
-### UX principles
-- Gujarati-first UI and data
-- Simple, trustworthy education-office visual language
-- Large readable typography
-- Minimum clicks for daily work
-- Clear A4 preview
-- Strong print/PDF workflow
-- Responsive layouts
-- Accessible validation
+Premium, if introduced later, should focus on optional advanced convenience/features rather than blocking essential teacher work.
 
 ---
 
-# 3. Architecture
+# 2. Core Community
+
+Every teacher has an individual account and community profile.
+
+### Teacher profile
+- Name
+- Profile photo
+- School name
+- District
+- Taluka
+- Standards taught
+- Subjects
+- Role
+- Experience (optional)
+- Contributions
+- Saved resources
+
+### Community content
+Teachers can publish:
+- Question papers
+- Question-bank questions
+- Worksheets
+- Lesson plans
+- Teaching activities
+- Useful PDFs
+- Patrak / forms
+- Paripatra / circular references
+- School formats
+- Letters
+- Certificates
+- Teaching ideas
+- Best practices
+
+### Community actions
+- View
+- Like
+- Save
+- Download
+- Copy to My Resources
+- Share
+- Report
+- Follow teacher (later phase)
+
+### Community loop
+`Teacher joins → finds useful resource → uses it → creates/shares own resource → other teachers use it → community grows.`
+
+The community is the primary reason to return to the app.
+
+---
+
+# 3. Individual Teacher Accounts
+
+Each teacher gets a separate account even when multiple teachers belong to the same school.
+
+`School → Teacher A / Teacher B / Teacher C / Principal`
+
+School information is shared/configurable at school level, while personal activity remains tied to the individual teacher.
+
+### Authentication
+- Phone + OTP
+- Local profile for offline-first use
+- Optional account linking when online
+
+The app must not force an internet connection for core local work after onboarding.
+
+---
+
+# 4. Teacher Work Assistant — Main Utility Mission
+
+The utility layer exists to remove repetitive school work.
+
+## 4.1 Patrak Automation
+
+Goal: **do not make teachers type the same student/school information repeatedly.**
+
+`Select Patrak → Select Class/Data → Auto-fill → Review → Generate PDF/Print`
+
+A student database should populate repeated fields automatically.
+
+Patrak should be data-driven and versioned so formats can be updated without rewriting the application.
+
+## 4.2 Rojmel
+
+Digital cash book for applicable grant/financial heads.
+
+Examples:
+- Composite School Grant
+- Sports
+- Swachhata
+- TLM
+- Other applicable heads
+
+`Closing Balance = Opening Balance + Receipts - Expenses`
+
+`Grant Balance = Opening + Receipts - Expenses`
+
+Expenses should be linked to purchase/expense records where practical.
+
+### Audit-safe behavior
+Never silently delete a financial transaction. Use reversal/void records with reason, timestamp and user.
+
+Generate local audit-oriented PDF containing opening balance, receipts, expenses, grant head, voucher/reference number, closing balance and transaction details.
+
+## 4.3 Grant Management
+
+Show current balance, total spending and transaction history by grant.
+
+Example:
 
 ```text
-Flutter UI
-   ↓
-Feature / Application Layer
-   ↓
-Repository Layer
-   ↓
-Local SQLite + Drift
-   ↓
-Local PDF / Image Generation
-
-Optional cloud services:
-Firebase FCM / Remote Config / Crashlytics / Analytics
+Composite Grant   ₹29,500
+Sports             ₹8,200
+Swachhata          ₹4,750
+TLM                ₹6,300
 ```
 
-### Architecture rule
-Firebase must never be required for core teacher workflows. If internet is unavailable, lesson planning, timetable, question papers, Rojmel, PM Poshan, SCE, PDF generation and image generation must continue to work.
+## 4.4 Stationery / Purchase Management
 
-### Recommended local database
-**SQLite + Drift** is preferred over Hive/Isar because the product has relational entities, reporting, filtering, joins and audit-style records.
-
----
-
-# 4. User Onboarding & Profiles
-
-## First launch
-
-1. Select role:
-   - Teacher
-   - Subject Teacher
-   - Principal / HTAT
-2. Create or load local profile
-3. Configure school profile
-4. Optional phone/OTP authentication
-5. Enter academic year
-
-### Role modes
-- Class Teacher Mode
-- Subject Teacher Mode
-- Principal / HTAT Mode
-
-The UI can expose different quick actions by role without duplicating the underlying data model.
-
-## School Profile
-
-The school profile is the single source of truth for reusable information.
-
-Fields:
-- School name
-- Address
-- Village / City
-- Taluka
-- District
-- UDISE code
-- School index number
-- Acharya / Principal name
-- Contact number
-- Email
-- Academic year
-- Logo
-- Acharya signature / seal
-- Other configurable official details
-
-Support Add, Edit, Save, Preview and logo/signature upload.
-
----
-
-# 5. Core Modules
-
-## 5.1 Dashboard
-
-Recommended cards:
-1. School Profile
-2. Daily Lesson / Teacher Diary
-3. Timetable
-4. Letters
-5. Patrak
-6. Question Papers
-7. Results / SCE
-8. Rojmel
-9. PM Poshan
-10. Registers
-11. Creative Tools
-12. Recent Documents
-13. Templates
-14. Settings
-
-Quick actions:
-- Create Letter
-- Create Patrak
-- Create Question Paper
-- Add Rojmel Entry
-- PM Poshan Entry
-- Generate Result
-
----
-
-## 5.2 Daily Lesson Planner / Teacher Diary
-
-Flow:
-
-`ધોરણ → વિષય → પાઠ → Learning Outcome → Activity → Homework → Save`
-
-Use bundled, versioned syllabus and learning-outcome data so most selections require no typing.
-
-### Data
+Record:
 - Date
-- Standard / division
-- Subject
-- Lesson/chapter
-- Learning outcome
-- Activity
-- Homework
+- Item
+- Quantity
+- Rate
+- Total
+- Grant head
+- Vendor
+- Bill number
 - Remarks
-- Completion status
+
+`Total = Quantity × Rate`
+
+A purchase can automatically create/link the corresponding expense entry and update grant/Rojmel balance.
+
+## 4.5 Bill / Voucher Generation
+
+Generate printable support containing school name, date, item, amount, grant head, vendor, bill/reference number and signature/seal.
+
+## 4.6 Letter & Certificate Tools
+
+School profile information automatically populates official letterhead, letters, certificates, notices, orders and reports.
+
+## 4.7 Registers
+
+Initial utility set:
+- Dead Stock
+- SMC
+- Other applicable school registers
+
+## 4.8 PM Poshan
+
+Daily/monthly calculations with configurable effective-date government rates.
+
+`Daily Grain = Eligible Students × Applicable Government Grain Rate`
+
+Government-controlled rates must not be permanently hard-coded.
 
 ---
 
-## 5.3 Smart Timetable
+# 5. Teaching Tools
 
-Inputs:
-- Standards / divisions
-- Teachers
-- Subjects
-- Periods
-- Working days
-- Multi-grade combinations
+Teaching tools support the larger Teacher Community mission.
 
-The timetable engine should detect teacher/standard conflicts and suggest valid slots.
+## 5.1 Question Paper Generator
 
-Example conflict:
+A major utility, not the product identity.
 
-`Teacher A + Period 3 + Std 5 + Std 6 = conflict`
+`Standard → Subject → Medium → Exam → Chapters → Blueprint → Generate → Edit → Preview → PDF`
 
-For multi-grade schools, allow configured combined classes where appropriate.
-
----
-
-## 5.4 Question Paper & Answer Key Generator
-
-Flow:
-
-`Std → Subject → Chapters → Blueprint → Generate → Edit → Preview → PDF`
-
-Question types:
+Types:
 - MCQ
 - True/False
 - Fill in the blank
@@ -201,211 +203,155 @@ Question types:
 - Long
 - Match the following
 
-Blueprint should control count, marks, difficulty and chapter/learning-outcome coverage.
+Initial generation should use an offline question bank/templates. Optional online AI can be considered later.
 
-### Offline-first rule
-The initial generator should use a local question bank and templates rather than requiring a cloud AI API. Optional online AI generation can be added later.
+## 5.2 Community Question Bank
 
----
+Questions contain standard, subject, chapter, topic, learning outcome, type, difficulty, marks, answer, language and creator.
 
-## 5.5 Rojmel — Digital Cash Book
+`Community Question → Copy to My Question Bank → Edit → Use in Paper`
 
-Grant-wise accounts:
-- Composite School Grant
-- Sports
-- Swachhata
-- TLM
-- Other configured heads
+## 5.3 Shared Question Papers
 
-### Formula
-`Closing Balance = Opening Balance + Total Receipts - Total Expenses`
+Teachers can publish papers with standard, subject, exam type, marks, duration, academic year, medium and creator.
 
-Per grant:
-`Grant Balance = Opening + Receipts - Expenses`
+Actions: View, Download PDF, Use this paper, Copy to editor, Save, Report.
 
-Prevent an expense from exceeding available balance unless an authorized adjustment workflow exists.
+## 5.4 Teacher Diary / Lesson Planning
 
-### Audit safety
-Do not silently delete financial transactions. Use reversal/void records with reason, timestamp and user.
+`Standard → Subject → Lesson → Learning Outcome → Activity → Homework → Save`
 
-### Export
-Generate audit-ready local PDF with opening balance, receipts, expenses, closing balance and transaction details.
+Use bundled, versioned curriculum data to minimize typing.
+
+## 5.5 Worksheets & Activities
+
+Teachers can create and share worksheets and classroom activities through the community.
 
 ---
 
-## 5.6 PM Poshan / MDM Calculator
+# 6. Community Resource Library
 
-Daily fields:
-- Date
-- Eligible student count
-- Primary count
-- Upper-primary count
-- Grain usage
-- Cooking cost
-- Remarks
+### Teaching
+Question papers, question bank, worksheets, lesson plans, activities, teaching aids.
 
-### Formula
-`Daily Grain = Eligible Students × Applicable Government Grain Rate`
+### School Work
+Patrak, forms, registers, letters, certificates, notices.
 
-Example only:
-`100 students × 100g = 10,000g = 10kg`
+### Information
+Paripatra, circular references, legally shareable government/department documents and useful guidelines.
 
-The actual government rate must be configurable and versioned rather than hard-coded.
+### School Management
+Rojmel formats, purchase formats, grant-related templates and SMC resources.
 
-Create monthly abstract output from daily entries.
+### Search and filters
+- Standard
+- Subject
+- District
+- Taluka
+- Content type
+- Exam
+- Language/medium
+- Newest
+- Most downloaded
+- Most liked
 
----
-
-## 5.7 SCE / Examination / Results
-
-Support:
-- Patrak A
-- Patrak B
-- Patrak C
-- Cumulative result cards
-- Batch generation
-
-Architecture should be template/data driven rather than hard-coded to one government format.
-
-### Core formula
-`Percentage = Obtained Marks / Maximum Marks × 100`
-
-### Grade system
-Store grading schemes and rules as configurable data. Do not hard-code a single grading scale because official assessment rules can change.
-
-Batch flow:
-
-`Select Class → Select Students → Select Assessment → Generate All → Preview → PDF Bundle`
+Community moderation and reporting are required before broad public release.
 
 ---
 
-## 5.8 Registers
+# 7. Community Moderation & Trust
 
-Initial register modules:
-- Dead Stock
-- SMC
-- Other school registers as templates
+Because teachers can upload public content, the platform needs moderation.
 
-Registers should support entries, search, filters, history and PDF/print export.
+Each upload should support basic validation, duplicate detection where practical, reporting, hide/remove workflow, admin review and copyright/inappropriate-content reporting.
 
----
+Potential badges later:
+- Helpful Teacher
+- Top Contributor
+- Question Creator
+- Verified Teacher
 
-## 5.9 Aaj no Deepak / Aaj nu Gulab
-
-Instant offline graphic generator.
-
-Flow:
-
-`Student → Photo → Template → Achievement/Text → Generate → Save/Share`
-
-Provide 4–5 configurable templates initially:
-- Minimal
-- Traditional school
-- Modern
-- Festival
-- Achievement
-
-Images should be generated locally.
+Likes/downloads must not be the only measure of educational quality.
 
 ---
 
-## 5.10 Official School Letterhead Maker
+# 8. Main Navigation
 
-One-time configuration:
-- Logo
-- School name
-- Address
-- UDISE
-- Phone / email
-- Acharya name
-- Signature
-- Seal
+Recommended bottom navigation:
 
-Flow:
-
-`New Letter → Select Type → Enter Body → Preview → PDF / Print`
-
-This is also the foundation for the broader Letter & Patrak Generator system.
-
----
-
-## 5.11 Daily Assembly Frame
-
-Generate an offline school frame containing configurable:
-- Suvichar / Quote
-- Din Vishesh
-- Tithi
-- Date
-- Birthday / student highlight
-
-Date-sensitive content can optionally refresh when internet is available.
-
----
-
-# 6. Screen-by-Screen Flow
-
-## Splash
-
-`ShalaSarathi → Gujarati tagline → Load local data`
-
-## Onboarding
-
-`Role → Profile → School → Academic Year → Dashboard`
+`Home | Community | Create | My Work | Profile`
 
 ## Home
+Welcome/profile, community highlights, quick school-work actions, recent work and pending tasks.
 
-Bottom navigation:
-
-`Home | Academic | Admin | Create | More`
-
-## Academic
-
-- Teacher Diary
-- Timetable
-- Question Papers
-- Results / SCE
-
-## Admin
-
-- Rojmel
-- PM Poshan
-- Registers
-- School Profile
-- Letters / Patrak
+## Community
+Feed, search, categories and filters.
 
 ## Create
+Question Paper, Question, Worksheet, Patrak, Letter, Certificate, Resource/Post, Creative Frame.
 
-- Letter
-- Patrak
-- Question Paper
-- Certificate
-- Creative Frame
+## My Work
+My Question Bank, My Papers, Saved Resources, Patrak history, Rojmel, Purchases, Generated Documents.
 
-## Documents
-
-Searchable list with:
-- Document type
-- Template
-- Date
-- Academic year
-- Reference number
-- Creator
-- Status
-
-Actions:
-- View
-- Edit
-- Duplicate
-- PDF
-- Print
-- Share
+## Profile
+Teacher profile, School profile, Contributions, Settings and Backup.
 
 ---
 
-# 7. Database Schema
+# 9. Dashboard Concept
+
+```text
+┌────────────────────────────────────┐
+│ નમસ્તે, શિક્ષકજી 👋               │
+│ ShalaSarathi                       │
+├────────────────────────────────────┤
+│ 👥 Teacher Community               │
+│ નવી પોસ્ટ • નવા પ્રશ્નપત્ર •       │
+│ નવા ઉપયોગી દસ્તાવેજો              │
+├────────────────────────────────────┤
+│ આજે શું કરવું છે?                  │
+│ 📋 Patrak ભરવું                    │
+│ 💰 Rojmel Entry                    │
+│ 🏫 Grant નો હિસાબ                  │
+│ 🛒 Purchase Entry                  │
+│ 📄 Letter બનાવવું                  │
+│ 📝 Question Paper                  │
+├────────────────────────────────────┤
+│ Community Updates                  │
+│ 👨‍🏫 Teacher A                     │
+│ 📄 ધોરણ 6 Worksheet                │
+└────────────────────────────────────┘
+```
+
+The Community should be visually primary; Question Paper must not dominate the home screen.
+
+---
+
+# 10. School + Teacher Data Model
+
+```text
+School
+ ├── School Profile
+ ├── Teachers
+ ├── Students
+ └── School Documents
+
+Teacher
+ ├── Personal Profile
+ ├── My Questions
+ ├── My Papers
+ ├── My Resources
+ ├── Saved Resources
+ └── Community Activity
+```
+
+One school can have many independent teacher accounts.
+
+---
+
+# 11. Database Schema
 
 ## `schools`
-
 ```text
 id UUID
 schoolName TEXT
@@ -425,23 +371,21 @@ updatedAt DATETIME
 ```
 
 ## `users`
-
 ```text
 id UUID
 schoolId FK
 name TEXT
 mobile TEXT
-role ENUM
+role TEXT
 profilePhoto TEXT
-isPrincipal BOOLEAN
+standardsTaught TEXT
+subjectsTaught TEXT
+experienceYears INTEGER
 createdAt DATETIME
+updatedAt DATETIME
 ```
 
-Roles:
-`teacher`, `subjectTeacher`, `principal`, `admin`
-
 ## `students`
-
 ```text
 id UUID
 schoolId FK
@@ -459,22 +403,93 @@ medium TEXT
 isActive BOOLEAN
 ```
 
-## `subjects`
-
+## `community_posts`
 ```text
 id UUID
-name TEXT
+creatorUserId FK
+type TEXT
+title TEXT
+description TEXT
 standard TEXT
+subject TEXT
 medium TEXT
-code TEXT
+filePath TEXT
+thumbnailPath TEXT
+status TEXT
+createdAt DATETIME
+updatedAt DATETIME
+```
+
+Types: `question`, `questionPaper`, `worksheet`, `lessonPlan`, `activity`, `patrak`, `paripatra`, `letter`, `certificate`, `resource`, `discussion`
+
+## `community_interactions`
+```text
+id UUID
+postId FK
+userId FK
+type TEXT
+createdAt DATETIME
+```
+
+Types: `like`, `save`, `download`, `report`, `share`
+
+## `teacher_follows`
+```text
+followerUserId FK
+followingUserId FK
+createdAt DATETIME
+```
+
+## `questions`
+```text
+id UUID
+creatorUserId FK
+standard TEXT
+subject TEXT
+chapter TEXT
+topic TEXT
+learningOutcome TEXT
+type TEXT
+difficulty TEXT
+marks INTEGER
+questionText TEXT
+answer TEXT
+medium TEXT
+sourceType TEXT
+isCommunityPublished BOOLEAN
+createdAt DATETIME
+```
+
+## `question_papers`
+```text
+id UUID
+creatorUserId FK
+schoolId FK
+standard TEXT
+subject TEXT
+medium TEXT
+examName TEXT
+totalMarks INTEGER
+durationMinutes INTEGER
+blueprintJson TEXT
+isCommunityPublished BOOLEAN
+createdAt DATETIME
+```
+
+## `question_paper_items`
+```text
+id UUID
+questionPaperId FK
+questionId FK
+sequence INTEGER
+marks INTEGER
 ```
 
 ## `syllabus_units`
-
 ```text
 id UUID
 standard TEXT
-subjectId FK
+subject TEXT
 unitNo INTEGER
 chapterNo INTEGER
 chapterName TEXT
@@ -488,7 +503,6 @@ source TEXT
 ```
 
 ## `lesson_plans`
-
 ```text
 id UUID
 teacherId FK
@@ -496,7 +510,7 @@ schoolId FK
 date DATE
 standard TEXT
 division TEXT
-subjectId FK
+subject TEXT
 lessonId FK
 learningOutcome TEXT
 activity TEXT
@@ -506,79 +520,7 @@ status TEXT
 createdAt DATETIME
 ```
 
-## `timetable_entries`
-
-```text
-id UUID
-schoolId FK
-dayOfWeek INTEGER
-periodNo INTEGER
-startTime TEXT
-endTime TEXT
-standard TEXT
-division TEXT
-subjectId FK
-teacherId FK
-room TEXT
-```
-
-## `question_papers`
-
-```text
-id UUID
-schoolId FK
-teacherId FK
-standard TEXT
-subjectId FK
-examName TEXT
-totalMarks INTEGER
-durationMinutes INTEGER
-blueprintId TEXT
-createdAt DATETIME
-```
-
-## `questions`
-
-```text
-id UUID
-questionPaperId FK
-type TEXT
-questionText TEXT
-marks INTEGER
-difficulty TEXT
-chapter TEXT
-learningOutcome TEXT
-answer TEXT
-sequence INTEGER
-```
-
-## `exams`
-
-```text
-id UUID
-schoolId FK
-name TEXT
-standard TEXT
-academicYear TEXT
-date DATE
-totalMarks INTEGER
-passingMarks INTEGER
-```
-
-## `student_results`
-
-```text
-id UUID
-examId FK
-studentId FK
-subjectId FK
-marksObtained REAL
-grade TEXT
-remarks TEXT
-```
-
 ## `rojmel_accounts`
-
 ```text
 id UUID
 schoolId FK
@@ -588,7 +530,6 @@ currentBalance REAL
 ```
 
 ## `rojmel_transactions`
-
 ```text
 id UUID
 accountId FK
@@ -606,8 +547,27 @@ status TEXT
 voidReason TEXT
 ```
 
-## `pm_poshan_daily`
+## `purchases`
+```text
+id UUID
+schoolId FK
+createdBy FK
+date DATE
+itemName TEXT
+quantity REAL
+rate REAL
+total REAL
+grantHead TEXT
+vendorName TEXT
+billNo TEXT
+remarks TEXT
+rojmelTransactionId FK
+createdAt DATETIME
+```
 
+Formula: `total = quantity × rate`
+
+## `pm_poshan_daily`
 ```text
 id UUID
 schoolId FK
@@ -622,8 +582,19 @@ cookingCost REAL
 remarks TEXT
 ```
 
-## `documents`
+## `templates`
+```text
+id UUID
+templateType TEXT
+name TEXT
+version TEXT
+language TEXT
+contentJson TEXT
+isPremium BOOLEAN
+isActive BOOLEAN
+```
 
+## `documents`
 ```text
 id UUID
 schoolId FK
@@ -636,50 +607,33 @@ createdAt DATETIME
 updatedAt DATETIME
 ```
 
-## `templates`
-
-```text
-id UUID
-templateType TEXT
-name TEXT
-version TEXT
-language TEXT
-contentJson TEXT
-isPremium BOOLEAN
-isActive BOOLEAN
-```
-
 ## `media_assets`
-
 ```text
 id UUID
 schoolId FK
+ownerUserId FK
 type TEXT
 localPath TEXT
 thumbnailPath TEXT
 createdAt DATETIME
 ```
 
-## `subscriptions`
-
+## `reports`
 ```text
 id UUID
-userId FK
-plan TEXT
-startDate DATETIME
-expiryDate DATETIME
+reporterUserId FK
+postId FK
+reason TEXT
 status TEXT
-purchaseToken TEXT
+createdAt DATETIME
+resolvedAt DATETIME
 ```
 
 ---
 
-# 8. Template Engine
-
-Templates must be data-driven rather than hard-coded wherever practical.
+# 12. Template & Document Engine
 
 Reusable placeholders:
-
 ```text
 {{school_name}}
 {{school_address}}
@@ -692,48 +646,110 @@ Reusable placeholders:
 {{standard}}
 ```
 
-Each template defines:
-- Unique ID
-- Name
-- Category
-- Description
-- Required fields
-- Auto-filled fields
-- Optional fields
-- Table definitions
-- Header/footer configuration
-- A4 print settings
-- Version
-- Premium/free status
+Templates define unique ID, name, category, description, required fields, auto-filled fields, optional fields, tables, header/footer, A4 settings, version and free/premium status.
 
-This allows new letters and patraks to be added without redesigning the application.
+Official formats must be versioned so updates do not require rewriting the app.
 
 ---
 
-# 9. Document Preview & PDF
+# 13. Offline-First + Community Architecture
 
-A4 preview should contain:
-- School logo/header
-- School and Acharya details
-- Document title
-- Reference/date
-- Main content/table
-- Signature/seal
-- Footer
+The **school-work utility layer is offline-first**.
 
-Actions:
-- Edit
-- Save
-- Download PDF
-- Print
-- Duplicate
-- Share
+Offline-capable workflows:
+- School profile
+- Student data
+- Patrak generation
+- Rojmel
+- Purchases
+- Grant calculations
+- PM Poshan
+- Lesson planning
+- Question paper generation
+- PDF/image generation
 
-All core PDF generation must happen locally.
+The **Community layer requires internet for sync/discovery**, but the app remains useful offline.
+
+Recommended pattern:
+
+```text
+Local-first data
+      ↓
+Outbox / Sync Queue
+      ↓
+Internet available
+      ↓
+Community API / Cloud backend
+```
+
+Firebase should remain useful for FCM, Remote Config, Crashlytics and Analytics. The community backend should have a clean API boundary so it can scale independently if required.
 
 ---
 
-# 10. Tech Stack
+# 14. Privacy & Trust
+
+- Collect only necessary data.
+- Keep school/student records local by default.
+- Do not upload student data merely to use community features.
+- Separate public community content from private school records.
+- Allow appropriate deletion of user content.
+- Provide reporting and moderation.
+- Protect local backups.
+
+A community post must never automatically expose private student information.
+
+---
+
+# 15. Monetization Philosophy
+
+## Core principle
+
+**Do not charge teachers for essential paperwork relief.**
+
+Free should include essential teacher work assistance:
+- Basic Patrak generation
+- Rojmel basics
+- Grant tracking basics
+- Purchase records
+- Basic letters/certificates
+- Basic question papers
+- Community participation
+- Reasonable resource discovery/download
+
+## Optional future premium
+
+Premium should focus on convenience/scale:
+- Bulk generation
+- Advanced analytics
+- Large-scale batch exports
+- Advanced template packs
+- Optional ad-free mode
+- Advanced backup/sync
+- Professional school-level reporting
+
+## Ads
+
+If AdMob is used:
+- Keep ads away from data entry.
+- Avoid aggressive interstitials.
+- Never block critical school records behind ads.
+- Rewarded ads may unlock optional convenience, not essential work.
+
+---
+
+# 16. Product Growth Strategy
+
+The growth engine is the community, not paid advertising alone.
+
+`Teacher joins → discovers useful resource → solves a real problem → creates/shares resource → other teachers benefit → more teachers join.`
+
+Before public launch, seed the platform with useful, legally shareable resources and templates so new teachers do not see an empty feed.
+
+Local discovery filters should include district, taluka, standard, subject and medium.
+
+---
+
+# 17. Tech Stack
 
 ## Frontend
 - Flutter
@@ -741,38 +757,41 @@ All core PDF generation must happen locally.
 - Material 3
 - Riverpod
 
-## Database
+## Local database
 - SQLite
 - Drift
-- SQLite migrations
+- Database migrations
 
-## PDF / documents
+## PDF / images
 - `pdf`
 - `printing`
-
-## Images/files
 - `image`
 - `flutter_image_compress`
+
+## Files
 - `path_provider`
 - `open_filex`
 - `share_plus`
 
 ## Firebase
-Use only for optional cloud services:
 - Firebase Cloud Messaging
 - Firebase Remote Config
 - Firebase Crashlytics
 - Firebase Analytics
 
-Firebase must not be the primary application database.
+Firebase is not the primary database for private school records.
+
+## Community backend
+
+Design an API boundary from day one for authentication, teacher profiles, community posts, search, likes/saves, downloads and moderation. Choose the backend provider during implementation based on scale and cost.
 
 ## Monetization
 - Google Mobile Ads / AdMob
-- Google Play subscription billing
+- Google Play Billing if premium is introduced
 
 ---
 
-# 11. Flutter Folder Structure
+# 18. Flutter Folder Structure
 
 ```text
 lib/
@@ -792,22 +811,25 @@ lib/
 │   ├── daos/
 │   └── migrations/
 ├── features/
+│   ├── auth/
 │   ├── onboarding/
 │   ├── dashboard/
-│   ├── school_profile/
-│   ├── teacher_diary/
-│   ├── timetable/
+│   ├── teacher_profile/
+│   ├── community/
+│   ├── question_bank/
 │   ├── question_paper/
-│   ├── results/
+│   ├── teacher_diary/
+│   ├── school_profile/
+│   ├── patrak/
 │   ├── rojmel/
+│   ├── grants/
+│   ├── purchases/
 │   ├── pm_poshan/
-│   ├── sce/
 │   ├── registers/
 │   ├── letterhead/
+│   ├── certificates/
 │   ├── creative/
-│   ├── assembly/
 │   ├── documents/
-│   ├── templates/
 │   └── settings/
 ├── shared/
 │   ├── widgets/
@@ -818,225 +840,176 @@ lib/
 
 ---
 
-# 12. Offline-First Rules
+# 19. Four-Phase Development Roadmap
 
-1. No core workflow should fail because Firebase is unavailable.
-2. Important user actions write locally first.
-3. Generated PDFs/images remain on-device.
-4. Cloud operations are optional enhancements.
-5. Provide backup export/import.
-6. Protect sensitive student data and minimize unnecessary cloud transfer.
-7. Use database migrations for every schema change.
-
-Flow:
-
-`User Action → Validate → SQLite → UI Update → Optional Cloud Operation`
-
----
-
-# 13. Monetization Strategy
-
-## Free tier
-
-- School Profile
-- Teacher Diary
-- Timetable
-- Basic letters
-- Basic PM Poshan
-- Basic Rojmel
-- Basic PDF
-
-## Premium annual pass
-
-Potential premium features:
-- Batch result generation
-- Advanced question-paper generator
-- Advanced template library
-- Full Patrak library
-- Audit-ready Rojmel export
-- Premium graphic templates
-- Bulk PDF generation
-- Ad-free experience
-
-### Ads
-Use ads carefully:
-- Banner on low-friction screens
-- Interstitial only at natural transitions
-- Rewarded ads as an optional one-time unlock
-
-Never interrupt data entry or critical school workflows with aggressive ads.
-
----
-
-# 14. ROI Model
-
-Illustrative scenario only:
-
-`10,000 active users × 5% conversion = 500 subscribers`
-
-At an example annual price of ₹499:
-
-`500 × ₹499 = ₹2,49,500 gross annual revenue`
-
-At 25,000 users:
-
-`25,000 × 5% = 1,250 subscribers`
-
-`1,250 × ₹499 = ₹6,23,750 gross annual revenue`
-
-Actual net revenue depends on Play fees, taxes, refunds, acquisition cost and retention.
-
-The strongest business opportunity is likely recurring teacher/school adoption and retention rather than advertising alone.
-
----
-
-# 15. Four-Phase Development Roadmap
-
-## Phase 1 — Foundation
+## Phase 1 — Community Foundation + Core Work Assistant
 
 Build:
 1. Flutter architecture
 2. Gujarati design system
-3. Onboarding
-4. Local user profile
+3. Teacher registration/login
+4. Teacher profile
 5. School profile
-6. SQLite/Drift
+6. Local SQLite/Drift
 7. Dashboard
-8. Teacher diary
-9. Basic timetable
-10. PDF engine
-11. Backup/export
+8. Community feed
+9. Community post/upload
+10. Search basics
+11. Basic Patrak engine
+12. Letterhead
+13. Local PDF generation
+14. Backup/export
 
-**Milestone:** a teacher can configure a school and create useful documents completely offline.
+**Milestone:** teacher can join the community and solve at least one real school paperwork task offline.
 
-## Phase 2 — Academic Engine
+## Phase 2 — Question Paper & Shared Resources
 
 Build:
-- Curriculum structure
-- Learning outcomes
-- Smart timetable
 - Question bank
 - Question paper generator
 - Answer key
-- Student database
-- Exam module
-- SCE
-- Results
-- Batch PDF
+- Shared question papers
+- Worksheets
+- Lesson plans
+- Community save/download/copy
+- Resource categories
+- Better search and filters
+- Moderation/reporting
 
-**Milestone:** complete offline academic assessment workflow.
+**Milestone:** community becomes useful enough for teachers to return regularly.
 
-## Phase 3 — Administration & Creative Tools
+## Phase 3 — Teacher Work-Freeing Suite
 
 Build:
 - Rojmel
-- Grant heads
+- Grant tracking
+- Purchase/stationery management
+- Voucher generation
 - PM Poshan
 - Dead Stock
-- SMC register
-- Letterhead
-- Certificates
-- Aaj no Deepak
-- Aaj nu Gulab
-- Assembly generator
-- Document history
+- SMC registers
+- Results/SCE
+- Batch Patrak
+- Letters/certificates
+- Creative tools
 
-**Milestone:** ShalaSarathi becomes an everyday school-office utility.
+**Milestone:** ShalaSarathi replaces multiple repetitive notebooks/files/tools for everyday school work.
 
-## Phase 4 — Commercial Release
+## Phase 4 — Scale & Sustainability
 
 Build:
-- Premium subscriptions
-- AdMob
+- Follow system
+- Teacher reputation/badges
+- Advanced community discovery
+- Notifications
+- Content moderation dashboard
+- Optional sync/backup
+- Crashlytics/analytics
 - Remote Config
-- FCM
-- Crashlytics
-- Analytics
-- Template update system
-- Backup/restore
-- Performance optimization
-- Security review
-- Play Store compliance
-- Beta testing
+- AdMob if appropriate
+- Optional premium convenience features
+- Performance/security hardening
+- Play Store release process
 
-Release sequence:
-
-`Internal Alpha → 10–20 Teachers → 50–100 Beta Users → District Pilot → Public Release`
+**Release:** `Internal Alpha → 10–20 Teachers → 50–100 Beta Users → District Pilot → Public Release`
 
 ---
 
-# 16. Critical Product Decisions
+# 20. MVP Definition
 
-Before production coding, lock these decisions:
+## P0 — Must have
+- Individual teacher login/profile
+- School profile
+- Teacher Community
+- Community post/resource upload
+- Search
+- Question bank
+- Basic question paper generation
+- Patrak templates
+- Basic Patrak generation
+- Letterhead
+- Local PDF generation
+- My Work / Saved Resources
 
-### Official formats
-GSEB/GCERT/Education Department formats must be treated as versioned templates and verified against applicable official material.
+## P1
+- Rojmel
+- Grant tracking
+- Purchase/stationery
+- PM Poshan
+- Results/SCE
+- Batch generation
+- Moderation dashboard
 
-### Gujarati content
-Curriculum, learning outcomes, question banks and official formats must be versioned by academic year/curriculum version.
-
-### Government calculations
-PM Poshan rates, grading rules and other government-controlled values must be configurable and effective-date based.
-
-### Privacy
-Student information is sensitive. Minimize collection, protect local data and never upload student data unless the feature explicitly requires it and the user has appropriate consent/authority.
-
-### Backup
-Offline-first must not mean data-loss-first. Provide encrypted backup export/import as an early reliability feature.
-
----
-
-# 17. Recommended MVP
-
-Do not start by building every module.
-
-First production MVP:
-
-`Login/Profile → School Profile → Dashboard → Teacher Diary → 1 Letter → 1 Patrak → A4 Preview → PDF → Print`
-
-Then expand:
-
-`Question Paper → Results/SCE → Rojmel → PM Poshan → Registers → Creative Tools`
-
-This creates a stable architecture and validates the core user journey before the product becomes large.
+## P2
+- Follow teachers
+- Badges
+- Advanced discovery
+- Notifications
+- Optional sync/backup
+- Advanced reporting
 
 ---
 
-# 18. First Build Checklist
+# 21. Success Metrics
 
-### Foundation
-- [ ] Flutter project
-- [ ] Gujarati font and typography system
-- [ ] Theme / design tokens
-- [ ] Navigation
-- [ ] Drift database
-- [ ] Migration system
-- [ ] Local profile
+The main KPI is **teacher usefulness and retention**, not number of generated question papers.
 
-### First usable flow
-- [ ] School Profile
-- [ ] Dashboard
-- [ ] Teacher Diary
-- [ ] Letter template
-- [ ] Patrak template
-- [ ] A4 preview
-- [ ] PDF generation
-- [ ] Print/share
+Track:
+- Weekly active teachers
+- Resources uploaded
+- Resources downloaded
+- Search-to-use rate
+- Repeat contributors
+- Community retention
+- Patrak generated
+- Rojmel entries completed
+- Purchase records created
+- Documents generated
+- Estimated typing/time saved
+- Crash-free sessions
+- Offline workflow success
+- PDF generation success
+- Backup restore success
 
-### Quality
-- [ ] Offline test with airplane mode
-- [ ] PDF print test
-- [ ] Gujarati rendering test
-- [ ] Database migration test
-- [ ] Backup/restore test
-- [ ] Large student-list performance test
+### North-star metric
+
+> **Weekly Active Teachers who successfully complete at least one useful community or school-work action.**
 
 ---
 
-# 19. Product Positioning
+# 22. Critical Product Rules
 
-**ShalaSarathi = Teacher's Offline Digital Toolkit for Gujarat Schools.**
+1. **Teacher Community is the product identity.**
+2. Question Paper Generator is a major tool, not the brand identity.
+3. Essential teacher paperwork relief should remain free.
+4. Private school/student data must remain separate from public community content.
+5. School data should be entered once and reused everywhere.
+6. Financial records must be auditable and never silently deleted.
+7. Government-controlled rates/formats must be configurable and versioned.
+8. Core school-work tools must function offline.
+9. Community discovery/sync can require internet.
+10. Community content requires moderation and reporting.
+11. Do not build every module before validating the core teacher experience.
+12. Prioritize time saved for teachers over feature count.
 
-The primary competitive advantage is not one calculator or one PDF generator. It is the combination of:
+---
 
-**Gujarati-first UX + zero-typing workflows + configurable official-format documents + offline reliability.**
+# 23. Product North Star
+
+## ShalaSarathi
+
+> ### **“શિક્ષકનું કામ સરળ બનાવવાનું, શિક્ષણ માટે સમય બચાવવાનું.”**
+
+**Community + Work Assistant + Teaching Tools**
+
+The long-term goal is for a Gujarat teacher to open ShalaSarathi whenever they think:
+
+- “આ Patrak ક્યાંથી મળશે?”
+- “Rojmelમાં આ entry કેવી રીતે રાખું?”
+- “Grantનો balance કેટલો છે?”
+- “Stationery purchaseનો હિસાબ ક્યાં રાખું?”
+- “આ format જોઈએ.”
+- “ધોરણ 6 માટે paper જોઈએ.”
+- “બીજા teachers આ વિષય કેવી રીતે શીખવે છે?”
+
+and get a practical answer or tool **without unnecessary typing, paperwork or cost**.
