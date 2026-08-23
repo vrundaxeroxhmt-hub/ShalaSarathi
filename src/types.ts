@@ -191,6 +191,7 @@ export interface PostPollData {
 
 export interface CommunityPost {
   id: string;
+  creatorId?: string;
   creatorName: string;
   creatorRole: string;
   creatorSchool: string;

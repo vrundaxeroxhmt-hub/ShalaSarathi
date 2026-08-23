@@ -1,29 +1,49 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Public read & authenticated/custom write for teacher dynamic users
+
+    // Teacher profiles: A teacher can read and write ONLY their own profile document
     match /teacherUsers/{userId} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-    
-    // Community posts with collaborative access
+
+    // School settings: Only authenticated users can read/write school settings
+    // Note: Data model currently uses single 'default_school' document.
+    // Multi-tenant school ownership rule will be introduced when schoolId claim is linked.
+    match /schoolSettings/{schoolId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Community posts: Owner-protected access
     match /communityPosts/{postId} {
-      allow read, write: if true;
+      allow read: if request.auth != null;
+      allow create: if request.auth != null 
+        && ('creatorId' in request.resource.data) 
+        && request.resource.data.creatorId == request.auth.uid;
+      allow update: if request.auth != null 
+        && ('creatorId' in resource.data) 
+        && resource.data.creatorId == request.auth.uid
+        && ('creatorId' in request.resource.data) 
+        && request.resource.data.creatorId == request.auth.uid;
+      allow delete: if request.auth != null 
+        && ('creatorId' in resource.data) 
+        && resource.data.creatorId == request.auth.uid;
     }
-    
-    // Teacher stories, reels & groups
+
+    // Teacher stories, reels & groups (Authenticated access)
     match /teacherStories/{storyId} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
     }
     match /teachingReels/{reelId} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
     }
     match /teacherGroups/{groupId} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
     }
-    
+
+    // Catch-all: Deny all unauthenticated or unhandled collection access
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }

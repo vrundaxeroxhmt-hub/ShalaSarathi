@@ -4,6 +4,7 @@ import {
   collection, 
   doc, 
   setDoc, 
+  getDoc,
   getDocs, 
   onSnapshot, 
   serverTimestamp,
@@ -435,30 +436,85 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setWelcomeNotification(null);
   };
 
-  // Firebase Auth State Observer
+  // Firebase Auth State Observer with Firestore Profile Hydration
   useEffect(() => {
     try {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
         setFirebaseUser(user);
         setIsAuthLoading(false);
-        if (user) {
-          // If a new user signed in or session was detected
-          if (prevUserUidRef.current !== user.uid) {
-            prevUserUidRef.current = user.uid;
-            const displayName = user.displayName || teacherProfile.name || user.email?.split('@')[0] || 'શિક્ષક મિત્ર';
-            triggerWelcomeNotification(displayName, teacherProfile.role, teacherProfile.schoolName, user.email || '');
-          }
 
-          // If the logged in user has a displayName or email, sync with teacher profile
-          if (user.displayName) {
-            setTeacherProfileState(prev => ({
-              ...prev,
-              name: user.displayName || prev.name,
-              email: user.email || prev.email
-            }));
+        if (user) {
+          try {
+            const teacherRef = doc(db, 'teacherUsers', user.uid);
+            const docSnap = await getDoc(teacherRef);
+
+            if (docSnap.exists()) {
+              // Hydrate from Firestore without overwriting existing non-empty values
+              const data = docSnap.data() as Partial<TeacherProfile>;
+              setTeacherProfileState(prev => ({
+                ...prev,
+                id: user.uid,
+                name: data.name || user.displayName || prev.name || 'શિક્ષક મિત્ર',
+                email: data.email || user.email || prev.email || '',
+                mobile: data.mobile || prev.mobile || '',
+                role: data.role || prev.role || 'પ્રાથમિક શિક્ષક',
+                standardsTaught: data.standardsTaught && data.standardsTaught.length > 0 ? data.standardsTaught : prev.standardsTaught,
+                subjectsTaught: data.subjectsTaught && data.subjectsTaught.length > 0 ? data.subjectsTaught : prev.subjectsTaught,
+                experienceYears: data.experienceYears ?? prev.experienceYears ?? 5,
+                schoolName: data.schoolName || prev.schoolName || schoolProfile.schoolName || 'શ્રી પ્રાથમિક શાળા',
+                district: data.district || prev.district || 'ગાંધીનગર',
+                taluka: data.taluka || prev.taluka || 'ગાંધીનગર',
+                contributionsCount: data.contributionsCount ?? prev.contributionsCount ?? 0,
+                savedResourcesCount: data.savedResourcesCount ?? prev.savedResourcesCount ?? 0,
+                badges: data.badges && data.badges.length > 0 ? data.badges : prev.badges
+              }));
+
+              if (prevUserUidRef.current !== user.uid) {
+                prevUserUidRef.current = user.uid;
+                const welcomeName = data.name || user.displayName || user.email?.split('@')[0] || 'શિક્ષક મિત્ર';
+                triggerWelcomeNotification(welcomeName, data.role || teacherProfile.role, data.schoolName || schoolProfile.schoolName, user.email || '');
+              }
+            } else {
+              // Create minimal teacher profile in Firestore for new authenticated user
+              const newProfile: TeacherProfile = {
+                id: user.uid,
+                name: user.displayName || teacherProfile.name || user.email?.split('@')[0] || 'શિક્ષક મિત્ર',
+                email: user.email || teacherProfile.email || '',
+                mobile: teacherProfile.mobile || '',
+                role: teacherProfile.role || 'પ્રાથમિક શિક્ષક',
+                standardsTaught: teacherProfile.standardsTaught || ['૬', '૭', '૮'],
+                subjectsTaught: teacherProfile.subjectsTaught || ['ગણિત', 'વિજ્ઞાન'],
+                experienceYears: teacherProfile.experienceYears || 5,
+                schoolName: teacherProfile.schoolName || schoolProfile.schoolName || 'શ્રી પ્રાથમિક શાળા',
+                district: teacherProfile.district || 'ગાંધીનગર',
+                taluka: teacherProfile.taluka || 'ગાંધીનગર',
+                contributionsCount: teacherProfile.contributionsCount || 0,
+                savedResourcesCount: teacherProfile.savedResourcesCount || 0,
+                badges: teacherProfile.badges || ['સક્રિય શિક્ષક']
+              };
+
+              setTeacherProfileState(newProfile);
+
+              await setDoc(teacherRef, {
+                ...newProfile,
+                createdAt: serverTimestamp(),
+                lastUpdated: serverTimestamp()
+              }, { merge: true }).catch((err) => {
+                console.warn('Initial teacher document creation notice:', err);
+              });
+
+              if (prevUserUidRef.current !== user.uid) {
+                prevUserUidRef.current = user.uid;
+                triggerWelcomeNotification(newProfile.name, newProfile.role, newProfile.schoolName, user.email || '');
+              }
+            }
+          } catch (err) {
+            console.warn('Teacher profile hydration notice:', err);
           }
         } else {
+          // Clear authenticated teacher profile state on logout
           prevUserUidRef.current = null;
+          setTeacherProfileState(INITIAL_TEACHER_PROFILE);
         }
       });
       return () => unsubscribe();
@@ -483,6 +539,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await updateProfile(userCredential.user, { displayName: name });
       setTeacherProfileState(prev => ({
         ...prev,
+        id: userCredential.user.uid,
         name: name,
         email: email
       }));
@@ -499,13 +556,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         await updateProfile(userCredential.user, { displayName: teacherName });
         setTeacherProfileState(prev => ({
           ...prev,
+          id: userCredential.user.uid,
           name: teacherName
         }));
       }
       setFirebaseUser(userCredential.user);
       triggerWelcomeNotification(teacherName || 'શિક્ષક મિત્ર', teacherProfile.role, teacherProfile.schoolName);
     } catch (e) {
-      // If anonymous auth is disabled on project, mock active session state with profile sync
       console.warn('Anonymous auth fallback:', e);
       if (teacherName) {
         setTeacherProfileState(prev => ({
@@ -520,6 +577,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const logOut = async () => {
     await signOut(auth);
     setFirebaseUser(null);
+    setTeacherProfileState(INITIAL_TEACHER_PROFILE);
     setWelcomeNotification(null);
     prevUserUidRef.current = null;
     showToast('સફળતાપૂર્વક સાઇન આઉટ થઈ ગયું 👋');
@@ -874,10 +932,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTeacherProfileState(prev => {
       const updated = { ...prev, ...profile };
       try {
-        setDoc(doc(db, 'teacherUsers', updated.id || 'current_teacher'), {
+        const docId = firebaseUser?.uid || updated.id || 'current_teacher';
+        setDoc(doc(db, 'teacherUsers', docId), {
           ...updated,
+          id: docId,
           lastUpdated: serverTimestamp()
-        }, { merge: true }).catch(() => {});
+        }, { merge: true }).catch((err) => {
+          console.warn('Teacher profile Firestore sync notice:', err);
+        });
       } catch (e) {}
       return updated;
     });
@@ -1308,6 +1370,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const newPost: CommunityPost = {
       ...post,
       id: newPostId,
+      creatorId: firebaseUser?.uid || teacherProfile.id,
       likesCount: 1,
       downloadsCount: 0,
       savesCount: 0,
