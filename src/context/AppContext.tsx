@@ -8,7 +8,8 @@ import {
   getDocs, 
   onSnapshot, 
   serverTimestamp,
-  updateDoc 
+  updateDoc,
+  writeBatch 
 } from 'firebase/firestore';
 import {
   onAuthStateChanged,
@@ -21,6 +22,7 @@ import {
 } from 'firebase/auth';
 import {
   SchoolProfile,
+  SchoolMember,
   TeacherProfile,
   Student,
   GrantAccount,
@@ -121,6 +123,8 @@ interface AppContextType {
   toggleFeatureCommunityPost: (id: string) => void;
   schoolProfile: SchoolProfile;
   updateSchoolProfile: (profile: Partial<SchoolProfile>) => void;
+  currentSchoolMember: SchoolMember | null;
+  setCurrentSchoolMember: (member: SchoolMember | null) => void;
   
   teacherProfile: TeacherProfile;
   updateTeacherProfile: (profile: Partial<TeacherProfile>) => void;
@@ -269,6 +273,16 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+function getStableSchoolId(school: SchoolProfile, fallbackId?: string): string {
+  if (school.udiseCode && school.udiseCode.trim() !== '') {
+    const normalized = school.udiseCode.replace(/[^a-zA-Z0-9]/g, '');
+    if (normalized.length > 0) {
+      return `sch_udise_${normalized}`;
+    }
+  }
+  return school.id || fallbackId || 'sch-001';
+}
+
 function loadFromStorage<T>(key: string, fallback: T): T {
   try {
     const saved = localStorage.getItem(`ss_${key}`);
@@ -292,6 +306,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     loadFromStorage('school_profile', INITIAL_SCHOOL_PROFILE)
   );
   
+  const [currentSchoolMember, setCurrentSchoolMember] = useState<SchoolMember | null>(null);
+
   const [teacherProfile, setTeacherProfileState] = useState<TeacherProfile>(() => 
     loadFromStorage('teacher_profile', INITIAL_TEACHER_PROFILE)
   );
@@ -436,7 +452,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setWelcomeNotification(null);
   };
 
-  // Firebase Auth State Observer with Firestore Profile Hydration
+  // Firebase Auth State Observer with Firestore Profile & School Hydration (Phase 1 Step 2)
   useEffect(() => {
     try {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -447,36 +463,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           try {
             const teacherRef = doc(db, 'teacherUsers', user.uid);
             const docSnap = await getDoc(teacherRef);
+            let activeTeacherProfile: TeacherProfile;
 
             if (docSnap.exists()) {
-              // Hydrate from Firestore without overwriting existing non-empty values
               const data = docSnap.data() as Partial<TeacherProfile>;
-              setTeacherProfileState(prev => ({
-                ...prev,
+              activeTeacherProfile = {
+                ...teacherProfile,
                 id: user.uid,
-                name: data.name || user.displayName || prev.name || 'શિક્ષક મિત્ર',
-                email: data.email || user.email || prev.email || '',
-                mobile: data.mobile || prev.mobile || '',
-                role: data.role || prev.role || 'પ્રાથમિક શિક્ષક',
-                standardsTaught: data.standardsTaught && data.standardsTaught.length > 0 ? data.standardsTaught : prev.standardsTaught,
-                subjectsTaught: data.subjectsTaught && data.subjectsTaught.length > 0 ? data.subjectsTaught : prev.subjectsTaught,
-                experienceYears: data.experienceYears ?? prev.experienceYears ?? 5,
-                schoolName: data.schoolName || prev.schoolName || schoolProfile.schoolName || 'શ્રી પ્રાથમિક શાળા',
-                district: data.district || prev.district || 'ગાંધીનગર',
-                taluka: data.taluka || prev.taluka || 'ગાંધીનગર',
-                contributionsCount: data.contributionsCount ?? prev.contributionsCount ?? 0,
-                savedResourcesCount: data.savedResourcesCount ?? prev.savedResourcesCount ?? 0,
-                badges: data.badges && data.badges.length > 0 ? data.badges : prev.badges
-              }));
-
-              if (prevUserUidRef.current !== user.uid) {
-                prevUserUidRef.current = user.uid;
-                const welcomeName = data.name || user.displayName || user.email?.split('@')[0] || 'શિક્ષક મિત્ર';
-                triggerWelcomeNotification(welcomeName, data.role || teacherProfile.role, data.schoolName || schoolProfile.schoolName, user.email || '');
-              }
+                name: data.name || user.displayName || teacherProfile.name || 'શિક્ષક મિત્ર',
+                email: data.email || user.email || teacherProfile.email || '',
+                mobile: data.mobile || teacherProfile.mobile || '',
+                role: data.role || teacherProfile.role || 'પ્રાથમિક શિક્ષક',
+                standardsTaught: data.standardsTaught && data.standardsTaught.length > 0 ? data.standardsTaught : teacherProfile.standardsTaught,
+                subjectsTaught: data.subjectsTaught && data.subjectsTaught.length > 0 ? data.subjectsTaught : teacherProfile.subjectsTaught,
+                experienceYears: data.experienceYears ?? teacherProfile.experienceYears ?? 5,
+                schoolId: data.schoolId || teacherProfile.schoolId,
+                schoolName: data.schoolName || teacherProfile.schoolName || schoolProfile.schoolName || 'શ્રી પ્રાથમિક શાળા',
+                district: data.district || teacherProfile.district || 'ગાંધીનગર',
+                taluka: data.taluka || teacherProfile.taluka || 'ગાંધીનગર',
+                contributionsCount: data.contributionsCount ?? teacherProfile.contributionsCount ?? 0,
+                savedResourcesCount: data.savedResourcesCount ?? teacherProfile.savedResourcesCount ?? 0,
+                badges: data.badges && data.badges.length > 0 ? data.badges : teacherProfile.badges,
+                updatedAt: data.updatedAt
+              };
+              setTeacherProfileState(activeTeacherProfile);
             } else {
-              // Create minimal teacher profile in Firestore for new authenticated user
-              const newProfile: TeacherProfile = {
+              activeTeacherProfile = {
                 id: user.uid,
                 name: user.displayName || teacherProfile.name || user.email?.split('@')[0] || 'શિક્ષક મિત્ર',
                 email: user.email || teacherProfile.email || '',
@@ -485,36 +497,112 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 standardsTaught: teacherProfile.standardsTaught || ['૬', '૭', '૮'],
                 subjectsTaught: teacherProfile.subjectsTaught || ['ગણિત', 'વિજ્ઞાન'],
                 experienceYears: teacherProfile.experienceYears || 5,
+                schoolId: teacherProfile.schoolId,
                 schoolName: teacherProfile.schoolName || schoolProfile.schoolName || 'શ્રી પ્રાથમિક શાળા',
                 district: teacherProfile.district || 'ગાંધીનગર',
                 taluka: teacherProfile.taluka || 'ગાંધીનગર',
                 contributionsCount: teacherProfile.contributionsCount || 0,
                 savedResourcesCount: teacherProfile.savedResourcesCount || 0,
-                badges: teacherProfile.badges || ['સક્રિય શિક્ષક']
+                badges: teacherProfile.badges || ['સક્રિય શિક્ષક'],
+                updatedAt: new Date().toISOString()
               };
-
-              setTeacherProfileState(newProfile);
+              setTeacherProfileState(activeTeacherProfile);
 
               await setDoc(teacherRef, {
-                ...newProfile,
+                ...activeTeacherProfile,
                 createdAt: serverTimestamp(),
                 lastUpdated: serverTimestamp()
               }, { merge: true }).catch((err) => {
                 console.warn('Initial teacher document creation notice:', err);
               });
-
-              if (prevUserUidRef.current !== user.uid) {
-                prevUserUidRef.current = user.uid;
-                triggerWelcomeNotification(newProfile.name, newProfile.role, newProfile.schoolName, user.email || '');
-              }
             }
+
+            if (prevUserUidRef.current !== user.uid) {
+              prevUserUidRef.current = user.uid;
+              triggerWelcomeNotification(
+                activeTeacherProfile.name,
+                activeTeacherProfile.role,
+                activeTeacherProfile.schoolName,
+                user.email || ''
+              );
+            }
+
+            // Step 2: Multi-Teacher School Resolution & Hydration
+            try {
+              const targetSchoolId = activeTeacherProfile.schoolId || getStableSchoolId(schoolProfile);
+              const schoolRef = doc(db, 'schools', targetSchoolId);
+              const memberRef = doc(db, 'schoolMembers', `${targetSchoolId}_${user.uid}`);
+
+              const [schoolSnap, memberSnap] = await Promise.all([
+                getDoc(schoolRef),
+                getDoc(memberRef)
+              ]);
+
+              if (schoolSnap.exists()) {
+                const fetchedSchool = { id: targetSchoolId, ...schoolSnap.data() } as SchoolProfile;
+                setSchoolProfileState(fetchedSchool);
+
+                if (memberSnap.exists()) {
+                  setCurrentSchoolMember({ id: memberSnap.id, ...memberSnap.data() } as SchoolMember);
+                } else {
+                  // Teacher is not yet an active member of this existing school.
+                  // Membership must be created by a principal/admin/htat of the school.
+                  console.warn(`User ${user.uid} is not yet an enrolled member of school ${targetSchoolId}. Membership pending principal approval.`);
+                  setCurrentSchoolMember(null);
+                }
+
+                if (!activeTeacherProfile.schoolId) {
+                  setTeacherProfileState(p => ({ ...p, schoolId: targetSchoolId }));
+                  await setDoc(teacherRef, { schoolId: targetSchoolId, updatedAt: new Date().toISOString() }, { merge: true }).catch(() => {});
+                }
+              } else {
+                // Provision new school & principal membership atomically via writeBatch
+                const batch = writeBatch(db);
+
+                const newSchoolDoc: SchoolProfile = {
+                  ...schoolProfile,
+                  id: targetSchoolId,
+                  createdByUid: user.uid,
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString()
+                };
+
+                const newMemberDoc: SchoolMember = {
+                  id: `${targetSchoolId}_${user.uid}`,
+                  schoolId: targetSchoolId,
+                  uid: user.uid,
+                  teacherName: activeTeacherProfile.name,
+                  teacherEmail: user.email || '',
+                  roleInSchool: 'principal',
+                  status: 'active',
+                  joinedAt: new Date().toISOString()
+                };
+
+                batch.set(schoolRef, newSchoolDoc, { merge: true });
+                batch.set(memberRef, newMemberDoc, { merge: true });
+                batch.set(teacherRef, { schoolId: targetSchoolId, updatedAt: new Date().toISOString() }, { merge: true });
+
+                await batch.commit().catch((err) => {
+                  console.warn('Batch school creation notice:', err);
+                });
+
+                setSchoolProfileState(newSchoolDoc);
+                setCurrentSchoolMember(newMemberDoc);
+                setTeacherProfileState(p => ({ ...p, schoolId: targetSchoolId }));
+              }
+            } catch (schoolErr) {
+              console.warn('School/Membership hydration error (retaining local state):', schoolErr);
+            }
+
           } catch (err) {
-            console.warn('Teacher profile hydration notice:', err);
+            console.warn('Teacher profile hydration error:', err);
           }
         } else {
-          // Clear authenticated teacher profile state on logout
+          // Clear authenticated teacher & school member state on logout
           prevUserUidRef.current = null;
           setTeacherProfileState(INITIAL_TEACHER_PROFILE);
+          setSchoolProfileState(INITIAL_SCHOOL_PROFILE);
+          setCurrentSchoolMember(null);
         }
       });
       return () => unsubscribe();
@@ -522,7 +610,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.warn('Firebase Auth state error:', e);
       setIsAuthLoading(false);
     }
-  }, [teacherProfile.name, teacherProfile.role, teacherProfile.schoolName, teacherProfile.email, schoolProfile.schoolName]);
+  }, [schoolProfile.udiseCode, schoolProfile.schoolName]);
 
   const signInWithEmail = async (email: string, pass: string) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, pass);
@@ -919,9 +1007,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateSchoolProfile = (profile: Partial<SchoolProfile>) => {
     setSchoolProfileState(prev => {
-      const updated = { ...prev, ...profile };
+      const updated = {
+        ...prev,
+        ...profile,
+        updatedAt: new Date().toISOString()
+      };
+      if (!updated.createdAt) updated.createdAt = new Date().toISOString();
+      if (!updated.createdByUid && firebaseUser?.uid) updated.createdByUid = firebaseUser.uid;
+
+      const targetSchoolId = getStableSchoolId(updated, prev.id);
+      updated.id = targetSchoolId;
+
       try {
-        setDoc(doc(db, 'schoolSettings', updated.id || 'default_school'), updated, { merge: true }).catch(() => {});
+        if (firebaseUser) {
+          setDoc(doc(db, 'schools', targetSchoolId), updated, { merge: true }).catch((err) => {
+            console.warn('Schools Firestore sync notice:', err);
+          });
+        }
+        // Retain legacy schoolSettings sync as fallback during migration phase
+        setDoc(doc(db, 'schoolSettings', targetSchoolId), updated, { merge: true }).catch(() => {});
       } catch (e) {}
       return updated;
     });
@@ -930,7 +1034,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateTeacherProfile = (profile: Partial<TeacherProfile>) => {
     setTeacherProfileState(prev => {
-      const updated = { ...prev, ...profile };
+      const updated = {
+        ...prev,
+        ...profile,
+        schoolId: profile.schoolId || prev.schoolId,
+        updatedAt: new Date().toISOString()
+      };
       try {
         const docId = firebaseUser?.uid || updated.id || 'current_teacher';
         setDoc(doc(db, 'teacherUsers', docId), {
@@ -1962,6 +2071,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         toggleFeatureCommunityPost,
         schoolProfile,
         updateSchoolProfile,
+        currentSchoolMember,
+        setCurrentSchoolMember,
         teacherProfile,
         updateTeacherProfile,
         students,

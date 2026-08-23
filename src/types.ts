@@ -110,6 +110,20 @@ export interface SchoolProfile {
   bankAccountNo?: string;
   bankName?: string;
   ifscCode?: string;
+  createdByUid?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface SchoolMember {
+  id: string;
+  schoolId: string;
+  uid: string;
+  teacherName: string;
+  teacherEmail?: string;
+  roleInSchool: 'principal' | 'teacher' | 'htat' | 'admin';
+  status: 'active' | 'pending' | 'invited';
+  joinedAt: string;
 }
 
 export interface TeacherProfile {
@@ -121,12 +135,14 @@ export interface TeacherProfile {
   standardsTaught: string[];
   subjectsTaught: string[];
   experienceYears: number;
+  schoolId?: string;
   schoolName: string;
   district: string;
   taluka: string;
   contributionsCount: number;
   savedResourcesCount: number;
   badges: string[];
+  updatedAt?: string;
 }
 
 export interface Student {
