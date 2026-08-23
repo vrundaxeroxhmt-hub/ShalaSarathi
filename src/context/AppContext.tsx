@@ -301,6 +301,34 @@ function saveToStorage<T>(key: string, value: T): void {
   }
 }
 
+function loadSchoolScopedFromStorage<T>(schoolId: string | null | undefined, key: string, fallback: T): T {
+  try {
+    if (schoolId) {
+      const schoolScopedKey = `ss_${schoolId}_${key}`;
+      const savedSchoolData = localStorage.getItem(schoolScopedKey);
+      if (savedSchoolData) {
+        return JSON.parse(savedSchoolData);
+      }
+    }
+    const savedLegacyData = localStorage.getItem(`ss_${key}`);
+    return savedLegacyData ? JSON.parse(savedLegacyData) : fallback;
+  } catch (e) {
+    console.warn(`Failed loading school-scoped ${key} from storage:`, e);
+    return fallback;
+  }
+}
+
+function saveSchoolScopedToStorage<T>(schoolId: string | null | undefined, key: string, value: T): void {
+  try {
+    if (schoolId) {
+      localStorage.setItem(`ss_${schoolId}_${key}`, JSON.stringify(value));
+    }
+    localStorage.setItem(`ss_${key}`, JSON.stringify(value));
+  } catch (e) {
+    console.warn(`Failed saving school-scoped ${key} to storage:`, e);
+  }
+}
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [schoolProfile, setSchoolProfileState] = useState<SchoolProfile>(() => 
     loadFromStorage('school_profile', INITIAL_SCHOOL_PROFILE)
@@ -313,39 +341,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   );
   
   const [students, setStudents] = useState<Student[]>(() => 
-    loadFromStorage('students', INITIAL_STUDENTS)
+    loadSchoolScopedFromStorage(null, 'students', INITIAL_STUDENTS)
   );
   
   const [grants, setGrants] = useState<GrantAccount[]>(() => 
-    loadFromStorage('grants', INITIAL_GRANTS)
+    loadSchoolScopedFromStorage(null, 'grants', INITIAL_GRANTS)
   );
   
   const [rojmelTransactions, setRojmelTransactions] = useState<RojmelTransaction[]>(() => 
-    loadFromStorage('rojmel_txs', INITIAL_ROJMEL_TRANSACTIONS)
+    loadSchoolScopedFromStorage(null, 'rojmel_txs', INITIAL_ROJMEL_TRANSACTIONS)
   );
   
   const [purchases, setPurchases] = useState<PurchaseItem[]>(() => 
-    loadFromStorage('purchases', INITIAL_PURCHASES)
+    loadSchoolScopedFromStorage(null, 'purchases', INITIAL_PURCHASES)
   );
   
   const [pmPoshanLogs, setPmPoshanLogs] = useState<PmPoshanDailyRecord[]>(() => 
-    loadFromStorage('pm_poshan', INITIAL_PM_POSHAN_LOGS)
+    loadSchoolScopedFromStorage(null, 'pm_poshan', INITIAL_PM_POSHAN_LOGS)
   );
   
   const [questions, setQuestions] = useState<Question[]>(() => 
-    loadFromStorage('questions', INITIAL_QUESTIONS)
+    loadSchoolScopedFromStorage(null, 'questions', INITIAL_QUESTIONS)
   );
   
   const [questionPapers, setQuestionPapers] = useState<QuestionPaper[]>(() => 
-    loadFromStorage('question_papers', INITIAL_QUESTION_PAPERS)
+    loadSchoolScopedFromStorage(null, 'question_papers', INITIAL_QUESTION_PAPERS)
   );
   
   const [lessonPlans, setLessonPlans] = useState<LessonPlan[]>(() => 
-    loadFromStorage('lesson_plans', INITIAL_LESSON_PLANS)
+    loadSchoolScopedFromStorage(null, 'lesson_plans', INITIAL_LESSON_PLANS)
   );
 
   const [monthlyLessonPlans, setMonthlyLessonPlans] = useState<MonthlyLessonPlan[]>(() =>
-    loadFromStorage('monthly_lesson_plans', INITIAL_MONTHLY_LESSON_PLANS)
+    loadSchoolScopedFromStorage(null, 'monthly_lesson_plans', INITIAL_MONTHLY_LESSON_PLANS)
   );
   
   const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>(() => 
@@ -377,11 +405,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   );
 
   const [weeklyClasses, setWeeklyClasses] = useState<WeeklyClassPeriod[]>(() =>
-    loadFromStorage('weekly_classes', INITIAL_WEEKLY_CLASSES)
+    loadSchoolScopedFromStorage(null, 'weekly_classes', INITIAL_WEEKLY_CLASSES)
   );
 
   const [schoolWeeklyEvents, setSchoolWeeklyEvents] = useState<SchoolWeeklyEvent[]>(() =>
-    loadFromStorage('school_weekly_events', INITIAL_SCHOOL_WEEKLY_EVENTS)
+    loadSchoolScopedFromStorage(null, 'school_weekly_events', INITIAL_SCHOOL_WEEKLY_EVENTS)
   );
 
   const [banners, setBanners] = useState<AppBanner[]>(() =>
@@ -662,27 +690,64 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const activeSchoolId = currentSchoolMember?.schoolId || teacherProfile?.schoolId || (schoolProfile ? getStableSchoolId(schoolProfile) : null);
+
+  // School-Scoped Data Re-Hydration & Account Switching Effect
+  const prevSchoolIdRef = React.useRef<string | null>(null);
+
+  useEffect(() => {
+    if (prevSchoolIdRef.current !== activeSchoolId && activeSchoolId) {
+      prevSchoolIdRef.current = activeSchoolId;
+
+      setStudents(loadSchoolScopedFromStorage(activeSchoolId, 'students', INITIAL_STUDENTS));
+      setGrants(loadSchoolScopedFromStorage(activeSchoolId, 'grants', INITIAL_GRANTS));
+      setRojmelTransactions(loadSchoolScopedFromStorage(activeSchoolId, 'rojmel_txs', INITIAL_ROJMEL_TRANSACTIONS));
+      setPurchases(loadSchoolScopedFromStorage(activeSchoolId, 'purchases', INITIAL_PURCHASES));
+      setPmPoshanLogs(loadSchoolScopedFromStorage(activeSchoolId, 'pm_poshan', INITIAL_PM_POSHAN_LOGS));
+      setQuestions(loadSchoolScopedFromStorage(activeSchoolId, 'questions', INITIAL_QUESTIONS));
+      setQuestionPapers(loadSchoolScopedFromStorage(activeSchoolId, 'question_papers', INITIAL_QUESTION_PAPERS));
+      setLessonPlans(loadSchoolScopedFromStorage(activeSchoolId, 'lesson_plans', INITIAL_LESSON_PLANS));
+      setMonthlyLessonPlans(loadSchoolScopedFromStorage(activeSchoolId, 'monthly_lesson_plans', INITIAL_MONTHLY_LESSON_PLANS));
+      setWeeklyClasses(loadSchoolScopedFromStorage(activeSchoolId, 'weekly_classes', INITIAL_WEEKLY_CLASSES));
+      setSchoolWeeklyEvents(loadSchoolScopedFromStorage(activeSchoolId, 'school_weekly_events', INITIAL_SCHOOL_WEEKLY_EVENTS));
+    }
+  }, [activeSchoolId]);
+
   const logOut = async () => {
     await signOut(auth);
     setFirebaseUser(null);
     setTeacherProfileState(INITIAL_TEACHER_PROFILE);
+    setSchoolProfileState(INITIAL_SCHOOL_PROFILE);
+    setCurrentSchoolMember(null);
+    setStudents(INITIAL_STUDENTS);
+    setGrants(INITIAL_GRANTS);
+    setRojmelTransactions(INITIAL_ROJMEL_TRANSACTIONS);
+    setPurchases(INITIAL_PURCHASES);
+    setPmPoshanLogs(INITIAL_PM_POSHAN_LOGS);
+    setQuestions(INITIAL_QUESTIONS);
+    setQuestionPapers(INITIAL_QUESTION_PAPERS);
+    setLessonPlans(INITIAL_LESSON_PLANS);
+    setMonthlyLessonPlans(INITIAL_MONTHLY_LESSON_PLANS);
+    setWeeklyClasses(INITIAL_WEEKLY_CLASSES);
+    setSchoolWeeklyEvents(INITIAL_SCHOOL_WEEKLY_EVENTS);
     setWelcomeNotification(null);
     prevUserUidRef.current = null;
+    prevSchoolIdRef.current = null;
     showToast('સફળતાપૂર્વક સાઇન આઉટ થઈ ગયું 👋');
   };
 
-  // Sync to local storage
+  // Sync to local storage with school-scoped keys for private school datasets
   useEffect(() => { saveToStorage('school_profile', schoolProfile); }, [schoolProfile]);
   useEffect(() => { saveToStorage('teacher_profile', teacherProfile); }, [teacherProfile]);
-  useEffect(() => { saveToStorage('students', students); }, [students]);
-  useEffect(() => { saveToStorage('grants', grants); }, [grants]);
-  useEffect(() => { saveToStorage('rojmel_txs', rojmelTransactions); }, [rojmelTransactions]);
-  useEffect(() => { saveToStorage('purchases', purchases); }, [purchases]);
-  useEffect(() => { saveToStorage('pm_poshan', pmPoshanLogs); }, [pmPoshanLogs]);
-  useEffect(() => { saveToStorage('questions', questions); }, [questions]);
-  useEffect(() => { saveToStorage('question_papers', questionPapers); }, [questionPapers]);
-  useEffect(() => { saveToStorage('lesson_plans', lessonPlans); }, [lessonPlans]);
-  useEffect(() => { saveToStorage('monthly_lesson_plans', monthlyLessonPlans); }, [monthlyLessonPlans]);
+  useEffect(() => { saveSchoolScopedToStorage(activeSchoolId, 'students', students); }, [activeSchoolId, students]);
+  useEffect(() => { saveSchoolScopedToStorage(activeSchoolId, 'grants', grants); }, [activeSchoolId, grants]);
+  useEffect(() => { saveSchoolScopedToStorage(activeSchoolId, 'rojmel_txs', rojmelTransactions); }, [activeSchoolId, rojmelTransactions]);
+  useEffect(() => { saveSchoolScopedToStorage(activeSchoolId, 'purchases', purchases); }, [activeSchoolId, purchases]);
+  useEffect(() => { saveSchoolScopedToStorage(activeSchoolId, 'pm_poshan', pmPoshanLogs); }, [activeSchoolId, pmPoshanLogs]);
+  useEffect(() => { saveSchoolScopedToStorage(activeSchoolId, 'questions', questions); }, [activeSchoolId, questions]);
+  useEffect(() => { saveSchoolScopedToStorage(activeSchoolId, 'question_papers', questionPapers); }, [activeSchoolId, questionPapers]);
+  useEffect(() => { saveSchoolScopedToStorage(activeSchoolId, 'lesson_plans', lessonPlans); }, [activeSchoolId, lessonPlans]);
+  useEffect(() => { saveSchoolScopedToStorage(activeSchoolId, 'monthly_lesson_plans', monthlyLessonPlans); }, [activeSchoolId, monthlyLessonPlans]);
   useEffect(() => { saveToStorage('community_posts', communityPosts); }, [communityPosts]);
   useEffect(() => { saveToStorage('teacher_stories', teacherStories); }, [teacherStories]);
   useEffect(() => { saveToStorage('teaching_reels', teachingReels); }, [teachingReels]);
@@ -690,8 +755,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => { saveToStorage('official_docs', officialDocuments); }, [officialDocuments]);
   useEffect(() => { saveToStorage('uploaded_templates', uploadedTemplates); }, [uploadedTemplates]);
   useEffect(() => { saveToStorage('resource_reviews', resourceReviews); }, [resourceReviews]);
-  useEffect(() => { saveToStorage('weekly_classes', weeklyClasses); }, [weeklyClasses]);
-  useEffect(() => { saveToStorage('school_weekly_events', schoolWeeklyEvents); }, [schoolWeeklyEvents]);
+  useEffect(() => { saveSchoolScopedToStorage(activeSchoolId, 'weekly_classes', weeklyClasses); }, [activeSchoolId, weeklyClasses]);
+  useEffect(() => { saveSchoolScopedToStorage(activeSchoolId, 'school_weekly_events', schoolWeeklyEvents); }, [activeSchoolId, schoolWeeklyEvents]);
   useEffect(() => { saveToStorage('banners', banners); }, [banners]);
   useEffect(() => { saveToStorage('dynamic_cards', dynamicCards); }, [dynamicCards]);
   useEffect(() => { saveToStorage('feature_flags', featureFlags); }, [featureFlags]);

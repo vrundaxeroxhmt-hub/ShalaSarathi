@@ -13,7 +13,7 @@ service cloud.firestore {
 
     // Checks if requesting user is an active member of the target school
     function isSchoolMember(schoolId) {
-      return isAuthenticated() && 
+      return isAuthenticated() &&
         exists(/databases/$(database)/documents/schoolMembers/$(schoolId + "_" + request.auth.uid)) &&
         get(/databases/$(database)/documents/schoolMembers/$(schoolId + "_" + request.auth.uid)).data.status == 'active';
     }
@@ -39,7 +39,7 @@ service cloud.firestore {
       allow read, write: if isUser(userId);
     }
 
-    // Schools:
+    // Schools & School Subcollections:
     // - Create: Authenticated user where createdByUid == request.auth.uid
     // - Read: Any active school member
     // - Update: Only principal / admin / htat (ordinary teachers cannot modify sensitive school data)
@@ -49,16 +49,51 @@ service cloud.firestore {
       allow read: if isSchoolMember(schoolId);
       allow update: if isSchoolAdminOrPrincipal(schoolId);
       allow delete: if false;
+
+      // School Subcollections (inherits school membership protection)
+      match /students/{studentId} {
+        allow read, write: if isSchoolMember(schoolId);
+      }
+      match /grants/{grantId} {
+        allow read, write: if isSchoolMember(schoolId);
+      }
+      match /rojmelTransactions/{txId} {
+        allow read, write: if isSchoolMember(schoolId);
+      }
+      match /purchases/{purchaseId} {
+        allow read, write: if isSchoolMember(schoolId);
+      }
+      match /pmPoshanLogs/{logId} {
+        allow read, write: if isSchoolMember(schoolId);
+      }
+      match /questions/{questionId} {
+        allow read, write: if isSchoolMember(schoolId);
+      }
+      match /questionPapers/{paperId} {
+        allow read, write: if isSchoolMember(schoolId);
+      }
+      match /lessonPlans/{planId} {
+        allow read, write: if isSchoolMember(schoolId);
+      }
+      match /monthlyLessonPlans/{planId} {
+        allow read, write: if isSchoolMember(schoolId);
+      }
+      match /weeklyClasses/{classId} {
+        allow read, write: if isSchoolMember(schoolId);
+      }
+      match /schoolWeeklyEvents/{eventId} {
+        allow read, write: if isSchoolMember(schoolId);
+      }
     }
 
     // School Memberships:
     match /schoolMembers/{membershipId} {
       // Read: A user can read their own membership or all memberships for their school
       allow read: if isAuthenticated() && (
-        resource.data.uid == request.auth.uid || 
+        resource.data.uid == request.auth.uid ||
         isSchoolMember(resource.data.schoolId)
       );
-      
+
       // Create:
       // Must match membership ID format: {schoolId}_{uid}
       // Allowed ONLY IF:
@@ -68,7 +103,7 @@ service cloud.firestore {
       //    - membership.uid == request.auth.uid
       //    - roleInSchool == 'principal'
       //    - status == 'active'
-      allow create: if isAuthenticated() && 
+      allow create: if isAuthenticated() &&
         membershipId == (request.resource.data.schoolId + "_" + request.resource.data.uid) && (
           // Existing active principal/admin/htat adding/inviting a member
           isSchoolAdminOrPrincipal(request.resource.data.schoolId) ||
@@ -104,7 +139,7 @@ service cloud.firestore {
 
       // Delete: Only principal/admin/htat or user removing their own membership
       allow delete: if isAuthenticated() && (
-        resource.data.uid == request.auth.uid || 
+        resource.data.uid == request.auth.uid ||
         isSchoolAdminOrPrincipal(resource.data.schoolId)
       );
     }
@@ -117,16 +152,16 @@ service cloud.firestore {
     // Community posts: Owner-protected access
     match /communityPosts/{postId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() 
-        && ('creatorId' in request.resource.data) 
+      allow create: if isAuthenticated()
+        && ('creatorId' in request.resource.data)
         && request.resource.data.creatorId == request.auth.uid;
-      allow update: if isAuthenticated() 
-        && ('creatorId' in resource.data) 
+      allow update: if isAuthenticated()
+        && ('creatorId' in resource.data)
         && resource.data.creatorId == request.auth.uid
-        && ('creatorId' in request.resource.data) 
+        && ('creatorId' in request.resource.data)
         && request.resource.data.creatorId == request.auth.uid;
-      allow delete: if isAuthenticated() 
-        && ('creatorId' in resource.data) 
+      allow delete: if isAuthenticated()
+        && ('creatorId' in resource.data)
         && resource.data.creatorId == request.auth.uid;
     }
 
