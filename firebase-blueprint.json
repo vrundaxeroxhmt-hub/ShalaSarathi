@@ -1,0 +1,52 @@
+{
+  "entities": {
+    "TeacherUser": {
+      "title": "TeacherUser",
+      "description": "Dynamic teacher profile and school metadata stored in Firestore",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth user ID or unique device ID" },
+        "name": { "type": "string", "description": "Full name of the teacher" },
+        "mobile": { "type": "string", "description": "Mobile phone number" },
+        "email": { "type": "string", "description": "Teacher email" },
+        "role": { "type": "string", "description": "Designation or teaching role" },
+        "schoolName": { "type": "string", "description": "Name of the school" },
+        "district": { "type": "string", "description": "District name" },
+        "taluka": { "type": "string", "description": "Taluka name" },
+        "udiseCode": { "type": "string", "description": "School UDISE code" },
+        "standardsTaught": { "type": "array", "description": "List of standards taught" },
+        "subjectsTaught": { "type": "array", "description": "List of subjects taught" },
+        "contributionsCount": { "type": "number", "description": "Number of community contributions" }
+      },
+      "required": ["uid", "name", "role", "schoolName"]
+    },
+    "CommunityPost": {
+      "title": "CommunityPost",
+      "description": "Shared educational resources and teacher posts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique post ID" },
+        "creatorId": { "type": "string", "description": "Author user ID" },
+        "creatorName": { "type": "string", "description": "Author teacher name" },
+        "creatorSchool": { "type": "string", "description": "Author school name" },
+        "creatorDistrict": { "type": "string", "description": "Author district" },
+        "title": { "type": "string", "description": "Post title" },
+        "description": { "type": "string", "description": "Post details" },
+        "standard": { "type": "string", "description": "Target standard" },
+        "subject": { "type": "string", "description": "Target subject" },
+        "likesCount": { "type": "number", "description": "Total like count" }
+      },
+      "required": ["id", "creatorName", "title"]
+    }
+  },
+  "firestore": {
+    "/teacherUsers/{userId}": {
+      "schema": { "$ref": "#/entities/TeacherUser" },
+      "description": "Store dynamic profile of logged-in teachers"
+    },
+    "/communityPosts/{postId}": {
+      "schema": { "$ref": "#/entities/CommunityPost" },
+      "description": "Collection of educational shared resources"
+    }
+  }
+}

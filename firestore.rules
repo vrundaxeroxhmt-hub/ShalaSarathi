@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Public read & authenticated/custom write for teacher dynamic users
+    match /teacherUsers/{userId} {
+      allow read, write: if true;
+    }
+    
+    // Community posts with collaborative access
+    match /communityPosts/{postId} {
+      allow read, write: if true;
+    }
+    
+    // Teacher stories, reels & groups
+    match /teacherStories/{storyId} {
+      allow read, write: if true;
+    }
+    match /teachingReels/{reelId} {
+      allow read, write: if true;
+    }
+    match /teacherGroups/{groupId} {
+      allow read, write: if true;
+    }
+    
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
