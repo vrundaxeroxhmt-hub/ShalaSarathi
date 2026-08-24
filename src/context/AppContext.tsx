@@ -804,6 +804,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
+  // Real-time Firestore Subscription for School Students (Phase 1 Step 3C)
+  useEffect(() => {
+    if (!activeSchoolId) return;
+
+    try {
+      const studentsCol = collection(db, 'schools', activeSchoolId, 'students');
+      const unsubscribe = onSnapshot(
+        studentsCol,
+        (snapshot) => {
+          if (!snapshot.empty) {
+            const cloudStudents: Student[] = [];
+            snapshot.forEach((docSnap) => {
+              cloudStudents.push({ id: docSnap.id, ...docSnap.data() } as Student);
+            });
+            if (cloudStudents.length > 0) {
+              setStudents(cloudStudents);
+            }
+          }
+        },
+        (error) => {
+          console.warn(`Firestore real-time students sync error for school ${activeSchoolId}:`, error);
+        }
+      );
+
+      return () => unsubscribe();
+    } catch (err) {
+      console.warn('Students Firestore subscription initialization skipped:', err);
+    }
+  }, [activeSchoolId]);
+
   // Helper to add audit log
   const logAdminAction = (action: AdminAuditLog['action'], details: string, status: AdminAuditLog['status'] = 'success') => {
     const newLog: AdminAuditLog = {
