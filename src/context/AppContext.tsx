@@ -9,6 +9,7 @@ import {
   onSnapshot, 
   serverTimestamp,
   updateDoc,
+  deleteDoc,
   writeBatch 
 } from 'firebase/firestore';
 import {
@@ -834,6 +835,196 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [activeSchoolId]);
 
+  // One-time Legacy LocalStorage Student Migration to Firestore (Phase 1 Step 3E)
+  const isMigratingStudentsRef = React.useRef<string | null>(null);
+
+  useEffect(() => {
+    const migrateLegacyStudents = async () => {
+      if (!activeSchoolId || !firebaseUser) return;
+
+      const migrationMarkerKey = `ss_${activeSchoolId}_students_migrated`;
+      if (localStorage.getItem(migrationMarkerKey) === 'true') return;
+
+      if (isMigratingStudentsRef.current === activeSchoolId) return;
+      isMigratingStudentsRef.current = activeSchoolId;
+
+      try {
+        const rawLegacyData = localStorage.getItem('ss_students');
+        if (!rawLegacyData) {
+          localStorage.setItem(migrationMarkerKey, 'true');
+          return;
+        }
+
+        const parsedLegacy = JSON.parse(rawLegacyData);
+        if (!Array.isArray(parsedLegacy) || parsedLegacy.length === 0) {
+          localStorage.setItem(migrationMarkerKey, 'true');
+          return;
+        }
+
+        const studentsCol = collection(db, 'schools', activeSchoolId, 'students');
+        const cloudSnap = await getDocs(studentsCol);
+
+        if (!cloudSnap.empty) {
+          localStorage.setItem(migrationMarkerKey, 'true');
+          return;
+        }
+
+        const batch = writeBatch(db);
+        const validLegacyStudents: Student[] = [];
+
+        parsedLegacy.forEach((s: Partial<Student>, index: number) => {
+          const studentId = s.id || `std-${Date.now()}-${index}`;
+          const studentObj: Student = {
+            ...s,
+            id: studentId
+          } as Student;
+
+          validLegacyStudents.push(studentObj);
+          const studentRef = doc(db, 'schools', activeSchoolId, 'students', studentId);
+          batch.set(studentRef, {
+            ...studentObj,
+            updatedAt: new Date().toISOString()
+          });
+        });
+
+        await batch.commit();
+        localStorage.setItem(migrationMarkerKey, 'true');
+        setStudents(validLegacyStudents);
+        saveSchoolScopedToStorage(activeSchoolId, 'students', validLegacyStudents);
+        showToast('જૂનો વિદ્યાર્થી ડેટા ક્લાઉડમાં સફળતાપૂર્વક અપલોડ થયો ☁️');
+      } catch (err) {
+        console.warn(`Legacy student migration notice for school ${activeSchoolId}:`, err);
+        isMigratingStudentsRef.current = null;
+      }
+    };
+
+    migrateLegacyStudents();
+  }, [activeSchoolId, firebaseUser]);
+
+  // Real-time Firestore Subscriptions for All Remaining School Private Datasets (Phase 1 Step 4)
+  useEffect(() => {
+    if (!activeSchoolId) return;
+
+    const subscriptions = [
+      { col: 'grants', setter: setGrants },
+      { col: 'rojmelTransactions', setter: setRojmelTransactions },
+      { col: 'purchases', setter: setPurchases },
+      { col: 'pmPoshanLogs', setter: setPmPoshanLogs },
+      { col: 'questions', setter: setQuestions },
+      { col: 'questionPapers', setter: setQuestionPapers },
+      { col: 'lessonPlans', setter: setLessonPlans },
+      { col: 'monthlyLessonPlans', setter: setMonthlyLessonPlans },
+      { col: 'weeklyClasses', setter: setWeeklyClasses },
+      { col: 'schoolWeeklyEvents', setter: setSchoolWeeklyEvents },
+    ];
+
+    const unsubscribes = subscriptions.map(({ col, setter }) => {
+      try {
+        const colRef = collection(db, 'schools', activeSchoolId, col);
+        return onSnapshot(
+          colRef,
+          (snapshot) => {
+            if (!snapshot.empty) {
+              const items: any[] = [];
+              snapshot.forEach((docSnap) => {
+                items.push({ id: docSnap.id, ...docSnap.data() });
+              });
+              if (items.length > 0) {
+                setter(items);
+              }
+            }
+          },
+          (error) => {
+            console.warn(`Firestore real-time sync error for ${col} in school ${activeSchoolId}:`, error);
+          }
+        );
+      } catch (err) {
+        console.warn(`Firestore subscription init skipped for ${col}:`, err);
+        return () => {};
+      }
+    });
+
+    return () => {
+      unsubscribes.forEach(unsub => unsub && unsub());
+    };
+  }, [activeSchoolId]);
+
+  // One-time Legacy LocalStorage Migration for All Remaining School Datasets (Phase 1 Step 4)
+  const isMigratingModulesRef = React.useRef<string | null>(null);
+
+  useEffect(() => {
+    const migrateLegacyModules = async () => {
+      if (!activeSchoolId || !firebaseUser) return;
+
+      if (isMigratingModulesRef.current === activeSchoolId) return;
+      isMigratingModulesRef.current = activeSchoolId;
+
+      const modulesToMigrate = [
+        { key: 'grants', storageKey: 'ss_grants', scopedKey: 'grants', collectionName: 'grants', setter: setGrants },
+        { key: 'rojmel_txs', storageKey: 'ss_rojmel_txs', scopedKey: 'rojmel_txs', collectionName: 'rojmelTransactions', setter: setRojmelTransactions },
+        { key: 'purchases', storageKey: 'ss_purchases', scopedKey: 'purchases', collectionName: 'purchases', setter: setPurchases },
+        { key: 'pm_poshan', storageKey: 'ss_pm_poshan', scopedKey: 'pm_poshan', collectionName: 'pmPoshanLogs', setter: setPmPoshanLogs },
+        { key: 'questions', storageKey: 'ss_questions', scopedKey: 'questions', collectionName: 'questions', setter: setQuestions },
+        { key: 'question_papers', storageKey: 'ss_question_papers', scopedKey: 'question_papers', collectionName: 'questionPapers', setter: setQuestionPapers },
+        { key: 'lesson_plans', storageKey: 'ss_lesson_plans', scopedKey: 'lesson_plans', collectionName: 'lessonPlans', setter: setLessonPlans },
+        { key: 'monthly_lesson_plans', storageKey: 'ss_monthly_lesson_plans', scopedKey: 'monthly_lesson_plans', collectionName: 'monthlyLessonPlans', setter: setMonthlyLessonPlans },
+        { key: 'weekly_classes', storageKey: 'ss_weekly_classes', scopedKey: 'weekly_classes', collectionName: 'weeklyClasses', setter: setWeeklyClasses },
+        { key: 'school_weekly_events', storageKey: 'ss_school_weekly_events', scopedKey: 'school_weekly_events', collectionName: 'schoolWeeklyEvents', setter: setSchoolWeeklyEvents },
+      ];
+
+      for (const mod of modulesToMigrate) {
+        const marker = `ss_${activeSchoolId}_${mod.key}_migrated`;
+        if (localStorage.getItem(marker) === 'true') continue;
+
+        try {
+          const rawLegacyData = localStorage.getItem(mod.storageKey);
+          if (!rawLegacyData) {
+            localStorage.setItem(marker, 'true');
+            continue;
+          }
+
+          const parsedLegacy = JSON.parse(rawLegacyData);
+          if (!Array.isArray(parsedLegacy) || parsedLegacy.length === 0) {
+            localStorage.setItem(marker, 'true');
+            continue;
+          }
+
+          const colRef = collection(db, 'schools', activeSchoolId, mod.collectionName);
+          const cloudSnap = await getDocs(colRef);
+
+          if (!cloudSnap.empty) {
+            localStorage.setItem(marker, 'true');
+            continue;
+          }
+
+          const batch = writeBatch(db);
+          const validLegacyItems: any[] = [];
+
+          parsedLegacy.forEach((item: any, index: number) => {
+            const itemId = item.id || `${mod.key}-${Date.now()}-${index}`;
+            const itemObj = { ...item, id: itemId };
+            validLegacyItems.push(itemObj);
+
+            const docRef = doc(db, 'schools', activeSchoolId, mod.collectionName, itemId);
+            batch.set(docRef, {
+              ...itemObj,
+              updatedAt: new Date().toISOString()
+            });
+          });
+
+          await batch.commit();
+          localStorage.setItem(marker, 'true');
+          mod.setter(validLegacyItems);
+          saveSchoolScopedToStorage(activeSchoolId, mod.scopedKey, validLegacyItems);
+        } catch (err) {
+          console.warn(`Legacy migration notice for ${mod.key} in school ${activeSchoolId}:`, err);
+        }
+      }
+    };
+
+    migrateLegacyModules();
+  }, [activeSchoolId, firebaseUser]);
+
   // Helper to add audit log
   const logAdminAction = (action: AdminAuditLog['action'], details: string, status: AdminAuditLog['status'] = 'success') => {
     const newLog: AdminAuditLog = {
@@ -1151,22 +1342,47 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const addStudent = (data: Omit<Student, 'id'>) => {
+    const newStudentId = `std-${Date.now()}`;
     const newStudent: Student = {
       ...data,
-      id: `std-${Date.now()}`
+      id: newStudentId
     };
     setStudents(prev => [newStudent, ...prev]);
     showToast(`વિદ્યાર્થી "${newStudent.fullName}" ઉમેરાયા`);
+
+    if (activeSchoolId) {
+      setDoc(doc(db, 'schools', activeSchoolId, 'students', newStudentId), {
+        ...newStudent,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore addStudent write notice for ${newStudentId}:`, err);
+      });
+    }
   };
 
   const updateStudent = (id: string, data: Partial<Student>) => {
     setStudents(prev => prev.map(s => s.id === id ? { ...s, ...data } : s));
     showToast('વિદ્યાર્થી માહિતી અપડેટ થઈ');
+
+    if (activeSchoolId) {
+      updateDoc(doc(db, 'schools', activeSchoolId, 'students', id), {
+        ...data,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore updateStudent write notice for ${id}:`, err);
+      });
+    }
   };
 
   const deleteStudent = (id: string) => {
     setStudents(prev => prev.filter(s => s.id !== id));
     showToast('વિદ્યાર્થી યાદીમાંથી દૂર કરાયા');
+
+    if (activeSchoolId) {
+      deleteDoc(doc(db, 'schools', activeSchoolId, 'students', id)).catch((err) => {
+        console.warn(`Firestore deleteStudent write notice for ${id}:`, err);
+      });
+    }
   };
 
   const addRojmelTransaction = (tx: Omit<RojmelTransaction, 'id' | 'status'>) => {
@@ -1179,18 +1395,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setRojmelTransactions(prev => [newTx, ...prev]);
 
     // Recalculate grant balances
+    let affectedGrant: GrantAccount | undefined;
     setGrants(prev => prev.map(g => {
       if (g.gujaratiName === tx.grantHead || g.id === tx.accountId) {
         const diff = (tx.income || 0) - (tx.expense || 0);
-        return {
+        affectedGrant = {
           ...g,
           currentBalance: Math.max(0, g.currentBalance + diff)
         };
+        return affectedGrant;
       }
       return g;
     }));
 
     showToast(`રોજમેળ વાઉચર ${newTx.voucherNo} સફળતાપૂર્વક નોંધાયું`);
+
+    if (activeSchoolId) {
+      setDoc(doc(db, 'schools', activeSchoolId, 'rojmelTransactions', newTx.id), {
+        ...newTx,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore addRojmelTransaction write notice for ${newTx.id}:`, err);
+      });
+
+      if (affectedGrant) {
+        setDoc(doc(db, 'schools', activeSchoolId, 'grants', affectedGrant.id), {
+          ...affectedGrant,
+          updatedAt: new Date().toISOString()
+        }, { merge: true }).catch(() => {});
+      }
+    }
   };
 
   const voidRojmelTransaction = (id: string, reason: string) => {
@@ -1205,18 +1439,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
 
     // Revert impact on grant
+    let affectedGrant: GrantAccount | undefined;
     setGrants(prev => prev.map(g => {
       if (g.gujaratiName === target.grantHead || g.id === target.accountId) {
         const revertDiff = (target.expense || 0) - (target.income || 0);
-        return {
+        affectedGrant = {
           ...g,
           currentBalance: Math.max(0, g.currentBalance + revertDiff)
         };
+        return affectedGrant;
       }
       return g;
     }));
 
     showToast(`વાઉચર ${target.voucherNo} ઓડિટ નિયમ મુજબ રદ (Void) કરવામાં આવ્યું`);
+
+    if (activeSchoolId) {
+      updateDoc(doc(db, 'schools', activeSchoolId, 'rojmelTransactions', id), {
+        status: 'રદ કરેલ (Void)',
+        voidReason: reason,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore voidRojmelTransaction write notice for ${id}:`, err);
+      });
+
+      if (affectedGrant) {
+        setDoc(doc(db, 'schools', activeSchoolId, 'grants', affectedGrant.id), {
+          ...affectedGrant,
+          updatedAt: new Date().toISOString()
+        }, { merge: true }).catch(() => {});
+      }
+    }
   };
 
   const addPurchase = (item: Omit<PurchaseItem, 'id' | 'total' | 'voucherCreated'>) => {
@@ -1251,22 +1504,51 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setRojmelTransactions(prev => [autoRojmelTx, ...prev]);
 
     // Deduct grant
+    let affectedGrant: GrantAccount | undefined;
     setGrants(prev => prev.map(g => {
       if (g.gujaratiName === item.grantHead) {
-        return {
+        affectedGrant = {
           ...g,
           currentBalance: Math.max(0, g.currentBalance - total)
         };
+        return affectedGrant;
       }
       return g;
     }));
 
     showToast(`ખરીદી ₹${total} નોંધાઈ અને રોજમેળ વાઉચર ${voucherNo} બન્યું`);
+
+    if (activeSchoolId) {
+      setDoc(doc(db, 'schools', activeSchoolId, 'purchases', newPurchase.id), {
+        ...newPurchase,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore addPurchase write notice for ${newPurchase.id}:`, err);
+      });
+
+      setDoc(doc(db, 'schools', activeSchoolId, 'rojmelTransactions', autoRojmelTx.id), {
+        ...autoRojmelTx,
+        updatedAt: new Date().toISOString()
+      }).catch(() => {});
+
+      if (affectedGrant) {
+        setDoc(doc(db, 'schools', activeSchoolId, 'grants', affectedGrant.id), {
+          ...affectedGrant,
+          updatedAt: new Date().toISOString()
+        }, { merge: true }).catch(() => {});
+      }
+    }
   };
 
   const deletePurchase = (id: string) => {
     setPurchases(prev => prev.filter(p => p.id !== id));
     showToast('ખરીદી રેકોર્ડ દૂર કરાયો');
+
+    if (activeSchoolId) {
+      deleteDoc(doc(db, 'schools', activeSchoolId, 'purchases', id)).catch((err) => {
+        console.warn(`Firestore deletePurchase write notice for ${id}:`, err);
+      });
+    }
   };
 
   const addPmPoshanLog = (log: Omit<PmPoshanDailyRecord, 'id' | 'totalStudents' | 'grainUsedKg' | 'totalCookingCost'>) => {
@@ -1284,11 +1566,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setPmPoshanLogs(prev => [newLog, ...prev]);
     showToast(`PM પોષણ દૈનિક નોંધણી (${totalStudents} બાળકો, ${grainUsedKg} કિગ્રા અનાજ) થઈ`);
+
+    if (activeSchoolId) {
+      setDoc(doc(db, 'schools', activeSchoolId, 'pmPoshanLogs', newLog.id), {
+        ...newLog,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore addPmPoshanLog write notice for ${newLog.id}:`, err);
+      });
+    }
   };
 
   const deletePmPoshanLog = (id: string) => {
     setPmPoshanLogs(prev => prev.filter(l => l.id !== id));
     showToast('PM પોષણ નોંધ રદ થઈ');
+
+    if (activeSchoolId) {
+      deleteDoc(doc(db, 'schools', activeSchoolId, 'pmPoshanLogs', id)).catch((err) => {
+        console.warn(`Firestore deletePmPoshanLog write notice for ${id}:`, err);
+      });
+    }
   };
 
   const addQuestion = (q: Omit<Question, 'id'>) => {
@@ -1298,11 +1595,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setQuestions(prev => [newQ, ...prev]);
     showToast('નવો પ્રશ્ન પ્રશ્નબેંકમાં ઉમેરાયો');
+
+    if (activeSchoolId) {
+      setDoc(doc(db, 'schools', activeSchoolId, 'questions', newQ.id), {
+        ...newQ,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore addQuestion write notice for ${newQ.id}:`, err);
+      });
+    }
   };
 
   const deleteQuestion = (id: string) => {
     setQuestions(prev => prev.filter(q => q.id !== id));
     showToast('પ્રશ્ન દૂર કરાયો');
+
+    if (activeSchoolId) {
+      deleteDoc(doc(db, 'schools', activeSchoolId, 'questions', id)).catch((err) => {
+        console.warn(`Firestore deleteQuestion write notice for ${id}:`, err);
+      });
+    }
   };
 
   const addQuestionPaper = (qp: Omit<QuestionPaper, 'id' | 'createdAt'>) => {
@@ -1313,11 +1625,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setQuestionPapers(prev => [newQP, ...prev]);
     showToast(`પ્રશ્નપત્ર "${newQP.title}" સફળતાપૂર્વક તૈયાર થયું`);
+
+    if (activeSchoolId) {
+      setDoc(doc(db, 'schools', activeSchoolId, 'questionPapers', newQP.id), {
+        ...newQP,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore addQuestionPaper write notice for ${newQP.id}:`, err);
+      });
+    }
   };
 
   const deleteQuestionPaper = (id: string) => {
     setQuestionPapers(prev => prev.filter(qp => qp.id !== id));
     showToast('પ્રશ્નપત્ર દૂર કરાયું');
+
+    if (activeSchoolId) {
+      deleteDoc(doc(db, 'schools', activeSchoolId, 'questionPapers', id)).catch((err) => {
+        console.warn(`Firestore deleteQuestionPaper write notice for ${id}:`, err);
+      });
+    }
   };
 
   const addLessonPlan = (lp: Omit<LessonPlan, 'id'>) => {
@@ -1327,11 +1654,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setLessonPlans(prev => [newLP, ...prev]);
     showToast('દૈનિક શિક્ષણ નોંધ (Teacher Diary) સાચવવામાં આવી');
+
+    if (activeSchoolId) {
+      setDoc(doc(db, 'schools', activeSchoolId, 'lessonPlans', newLP.id), {
+        ...newLP,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore addLessonPlan write notice for ${newLP.id}:`, err);
+      });
+    }
   };
 
   const deleteLessonPlan = (id: string) => {
     setLessonPlans(prev => prev.filter(lp => lp.id !== id));
     showToast('શિક્ષણ નોંધ દૂર કરાઈ');
+
+    if (activeSchoolId) {
+      deleteDoc(doc(db, 'schools', activeSchoolId, 'lessonPlans', id)).catch((err) => {
+        console.warn(`Firestore deleteLessonPlan write notice for ${id}:`, err);
+      });
+    }
   };
 
   const addMonthlyLessonPlan = (plan: Omit<MonthlyLessonPlan, 'id' | 'createdAt'>) => {
@@ -1342,6 +1684,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setMonthlyLessonPlans(prev => [newPlan, ...prev]);
     showToast(`માસિક પાઠ આયોજન "${newPlan.month} - ${newPlan.subject}" સાચવવામાં આવ્યું`);
+
+    if (activeSchoolId) {
+      setDoc(doc(db, 'schools', activeSchoolId, 'monthlyLessonPlans', newPlan.id), {
+        ...newPlan,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore addMonthlyLessonPlan write notice for ${newPlan.id}:`, err);
+      });
+    }
   };
 
   const updateMonthlyLessonPlan = (id: string, data: Partial<MonthlyLessonPlan>) => {
@@ -1356,11 +1707,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return p;
     }));
     showToast('માસિક પાઠ આયોજન અપડેટ થયું');
+
+    if (activeSchoolId) {
+      updateDoc(doc(db, 'schools', activeSchoolId, 'monthlyLessonPlans', id), {
+        ...data,
+        updatedAt: new Date().toISOString().split('T')[0]
+      }).catch((err) => {
+        console.warn(`Firestore updateMonthlyLessonPlan write notice for ${id}:`, err);
+      });
+    }
   };
 
   const deleteMonthlyLessonPlan = (id: string) => {
     setMonthlyLessonPlans(prev => prev.filter(p => p.id !== id));
     showToast('માસિક પાઠ આયોજન દૂર કરાયું');
+
+    if (activeSchoolId) {
+      deleteDoc(doc(db, 'schools', activeSchoolId, 'monthlyLessonPlans', id)).catch((err) => {
+        console.warn(`Firestore deleteMonthlyLessonPlan write notice for ${id}:`, err);
+      });
+    }
   };
 
   const toggleDailySubTask = (planId: string, activityId: string, subTaskId: string) => {
@@ -1944,27 +2310,61 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setWeeklyClasses(prev => [...prev, newClass]);
     showToast(`નવો તાસ (${newClass.standard} - ${newClass.subject}) સમયપત્રકમાં ઉમેરાયો!`);
+
+    if (activeSchoolId) {
+      setDoc(doc(db, 'schools', activeSchoolId, 'weeklyClasses', newClass.id), {
+        ...newClass,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore addWeeklyClass write notice for ${newClass.id}:`, err);
+      });
+    }
   };
 
   const updateWeeklyClass = (id: string, data: Partial<WeeklyClassPeriod>) => {
     setWeeklyClasses(prev => prev.map(c => c.id === id ? { ...c, ...data } : c));
     showToast('તાસની વિગતો અપડેટ થઈ!');
+
+    if (activeSchoolId) {
+      updateDoc(doc(db, 'schools', activeSchoolId, 'weeklyClasses', id), {
+        ...data,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore updateWeeklyClass write notice for ${id}:`, err);
+      });
+    }
   };
 
   const deleteWeeklyClass = (id: string) => {
     setWeeklyClasses(prev => prev.filter(c => c.id !== id));
     showToast('તાસ સમયપત્રકમાંથી દૂર કર્યો');
+
+    if (activeSchoolId) {
+      deleteDoc(doc(db, 'schools', activeSchoolId, 'weeklyClasses', id)).catch((err) => {
+        console.warn(`Firestore deleteWeeklyClass write notice for ${id}:`, err);
+      });
+    }
   };
 
   const toggleCompleteWeeklyClass = (id: string) => {
+    let nextState = true;
     setWeeklyClasses(prev => prev.map(c => {
       if (c.id === id) {
-        const nextState = !c.isCompleted;
+        nextState = !c.isCompleted;
         showToast(nextState ? 'તાસ પૂર્ણ ચિહ્નિત કર્યો ✅' : 'તાસ ફરી સક્રિય કર્યો');
         return { ...c, isCompleted: nextState };
       }
       return c;
     }));
+
+    if (activeSchoolId) {
+      updateDoc(doc(db, 'schools', activeSchoolId, 'weeklyClasses', id), {
+        isCompleted: nextState,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore toggleCompleteWeeklyClass write notice for ${id}:`, err);
+      });
+    }
   };
 
   // School Weekly Events Handlers
@@ -1975,27 +2375,61 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setSchoolWeeklyEvents(prev => [...prev, newEvt]);
     showToast(`શાળા ઇવેન્ટ "${newEvt.title}" શેડ્યૂલમાં ઉમેરાઈ!`);
+
+    if (activeSchoolId) {
+      setDoc(doc(db, 'schools', activeSchoolId, 'schoolWeeklyEvents', newEvt.id), {
+        ...newEvt,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore addSchoolWeeklyEvent write notice for ${newEvt.id}:`, err);
+      });
+    }
   };
 
   const updateSchoolWeeklyEvent = (id: string, data: Partial<SchoolWeeklyEvent>) => {
     setSchoolWeeklyEvents(prev => prev.map(e => e.id === id ? { ...e, ...data } : e));
     showToast('શાળા ઇવેન્ટ અપડેટ થઈ!');
+
+    if (activeSchoolId) {
+      updateDoc(doc(db, 'schools', activeSchoolId, 'schoolWeeklyEvents', id), {
+        ...data,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore updateSchoolWeeklyEvent write notice for ${id}:`, err);
+      });
+    }
   };
 
   const deleteSchoolWeeklyEvent = (id: string) => {
     setSchoolWeeklyEvents(prev => prev.filter(e => e.id !== id));
     showToast('ઇવેન્ટ દૂર કરવામાં આવી');
+
+    if (activeSchoolId) {
+      deleteDoc(doc(db, 'schools', activeSchoolId, 'schoolWeeklyEvents', id)).catch((err) => {
+        console.warn(`Firestore deleteSchoolWeeklyEvent write notice for ${id}:`, err);
+      });
+    }
   };
 
   const toggleCompleteSchoolEvent = (id: string) => {
+    let nextState = true;
     setSchoolWeeklyEvents(prev => prev.map(e => {
       if (e.id === id) {
-        const nextState = !e.isCompleted;
+        nextState = !e.isCompleted;
         showToast(nextState ? 'ઇવેન્ટ/મીટિંગ પૂર્ણ ચિહ્નિત થઈ ✅' : 'ઇવેન્ટ ફરી બાકી કરી');
         return { ...e, isCompleted: nextState };
       }
       return e;
     }));
+
+    if (activeSchoolId) {
+      updateDoc(doc(db, 'schools', activeSchoolId, 'schoolWeeklyEvents', id), {
+        isCompleted: nextState,
+        updatedAt: new Date().toISOString()
+      }).catch((err) => {
+        console.warn(`Firestore toggleCompleteSchoolEvent write notice for ${id}:`, err);
+      });
+    }
   };
 
   const resetWeeklyScheduleToDefault = () => {
