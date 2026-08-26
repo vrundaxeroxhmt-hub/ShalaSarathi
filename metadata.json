@@ -1,6 +1,0 @@
-{
-  "name": "ShalaSarathi",
-  "description": "ગુજરાતના શિક્ષકો માટે સમર્પિત કમ્યુનિટી અને શાળા કાર્ય સહાયક (Teacher Community & School Work Assistant)",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
