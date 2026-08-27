@@ -24,6 +24,7 @@ export type NavModuleId =
   | 'dashboard' 
   | 'profile' 
   | 'school' 
+  | 'aheval_patrak'
   | 'patrak' 
   | 'aheval' 
   | 'rojmel' 
@@ -46,12 +47,11 @@ interface Props {
 export const WebSidebar: React.FC<Props> = ({ activeModule, onSelectModule, teacher }) => {
   const navItems: Array<{ id: NavModuleId; labelGuj: string; labelEng: string; icon: any; badge?: string }> = [
     { id: 'dashboard', labelGuj: 'ડેશબોર્ડ', labelEng: 'Dashboard', icon: LayoutDashboard },
+    { id: 'aheval_patrak', labelGuj: '📑 અહેવાલ / પત્રક', labelEng: 'Aheval & Patrak Engine', icon: FileSpreadsheet, badge: 'New' },
     { id: 'profile', labelGuj: 'શિક્ષક પ્રોફાઇલ', labelEng: 'Teacher Profile', icon: UserCheck },
     { id: 'school', labelGuj: 'શાળા પ્રોફાઇલ', labelEng: 'School Profile', icon: Building2 },
-    { id: 'patrak', labelGuj: '૭૩ સરકારી પત્રક એન્જિન', labelEng: '73 Patrak Engine', icon: FileSpreadsheet, badge: '૭૩' },
-    { id: 'aheval', labelGuj: 'અહેવાલ જનરેટર (Voice)', labelEng: 'Aheval Generator', icon: FileText, badge: 'Voice' },
     { id: 'rojmel', labelGuj: 'રોજમેળ અને ડેડ સ્ટોક', labelEng: 'Rojmel & Dead Stock', icon: BookOpen, badge: 'VIP' },
-    { id: 'payable', labelGuj: 'ઉધારી વ્યવસ્થા (Payable)', labelEng: 'Credit Purchases', icon: CreditCard, badge: 'New' },
+    { id: 'payable', labelGuj: 'ઉધારી વ્યવસ્થા (Payable)', labelEng: 'Credit Purchases', icon: CreditCard },
     { id: 'voucher', labelGuj: 'વાઉચર જનરેટર', labelEng: 'Voucher Module', icon: Receipt },
     { id: 'paper', labelGuj: 'પેપર જનરેટર', labelEng: 'Paper Generator', icon: FileQuestion },
     { id: 'docgen', labelGuj: 'દસ્તાવેજ નમૂના', labelEng: 'Doc Generator', icon: FileOutput },

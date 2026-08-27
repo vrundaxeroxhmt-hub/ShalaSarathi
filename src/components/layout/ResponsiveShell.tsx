@@ -27,6 +27,8 @@ import { MyDocsModule } from '../modules/MyDocs/MyDocsModule';
 import { GenericModulePlaceholder } from '../modules/Placeholders/GenericModulePlaceholder';
 import { VoiceInputModal } from '../voice/VoiceInputModal';
 
+import { AhevalPatrakModule } from '../modules/AhevalPatrak/AhevalPatrakModule';
+
 // Icons
 import { Building2, FileOutput, Bell, Settings } from 'lucide-react';
 
@@ -86,8 +88,9 @@ export const ResponsiveShell: React.FC<Props> = ({
       case 'dashboard': return 'ડેશબોર્ડ (Dashboard)';
       case 'profile': return 'શિક્ષક પ્રોફાઇલ (Teacher Profile)';
       case 'school': return 'શાળા પ્રોફાઇલ (School Profile)';
-      case 'patrak': return '૭૩ સરકારી પત્રક એન્જિન (Patrak Engine)';
-      case 'aheval': return 'અહેવાલ જનરેટર (Aheval Generator)';
+      case 'aheval_patrak': return '📑 અહેવાલ / પત્રક (Aheval & Patrak)';
+      case 'patrak': return '📑 અહેવાલ / પત્રક';
+      case 'aheval': return '📑 અહેવાલ / પત્રક';
       case 'rojmel': return 'રોજમેળ અને ડેડ સ્ટોક (Rojmel Ledger)';
       case 'payable': return 'ઉધારી વ્યવસ્થા (Payable Credit Purchases)';
       case 'voucher': return 'વાઉચર જનરેટર (Voucher Module)';
@@ -125,18 +128,17 @@ export const ResponsiveShell: React.FC<Props> = ({
       case 'profile':
         return <TeacherProfileModule profile={teacher} onSaveProfile={onSaveProfile} />;
 
+      case 'aheval_patrak':
       case 'patrak':
+      case 'aheval':
         return (
-          <PatrakModule
-            templates={templates}
+          <AhevalPatrakModule
             teacher={teacher}
-            onSaveDocument={onSavePatrakDoc}
+            rojmelEntries={rojmelEntries}
             isMobile={isMobile}
+            onOpenParishishtModal={() => setActiveModule('rojmel')}
           />
         );
-
-      case 'aheval':
-        return <AhevalModule teacher={teacher} />;
 
       case 'rojmel':
         return (
