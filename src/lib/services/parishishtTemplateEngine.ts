@@ -7,7 +7,7 @@ import { TeacherProfile } from '@/types/user';
 import { formatGujaratiDate } from './rojmelService';
 
 export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
-  // Parishisht 1 - Version 1 (Historical)
+  // Parishisht 1 - Version 1 (Historical Baseline)
   {
     templateId: 'parishisht_01_v1',
     parishishtNo: 1,
@@ -18,25 +18,27 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     effectiveFrom: '2025-04-01',
     effectiveTo: '2026-03-31',
     status: 'verified',
-    source: 'ગુજરાત પ્રાથમિક શિક્ષણ વિભાગ નિયમો ૨૦૨૫',
-    lastVerified: '2025-04-01',
+    isOfficialVerified: true,
+    source: 'https://shalarojmel.com/assets/pdf/parishishth-1.pdf',
+    lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'landscape',
     sections: [],
     dataMappings: []
   },
-  // Parishisht 1 - Version 2 (Current Official ShalaRojmel Standard - A4 Landscape Dual Register)
+  // Parishisht 1 - Version 2 (Official Verified Reference: parishishth-1.pdf)
   {
     templateId: 'parishisht_01_v2',
     parishishtNo: 1,
-    nameGuj: 'પરિશિષ્ટ ૦૧ — દૈનિક રોકડ અને બેંક રોજમેળ રજિસ્ટર (A4 Official Register)',
+    nameGuj: 'પરિશિષ્ટ ૦૧ — દૈનિક રોકડ અને બેંક રોજમેળ રજિસ્ટર (Official Verified A4 Dual Register)',
     nameEng: 'Parishisht 01 - Daily Cash & Bank Book Register (v2.0)',
     descriptionGuj: 'સત્તાવાર શાંડલિયા/શાળા રોજમેળ A4 જમા-ઉધાર દ્વિ-પક્ષીય રજિસ્ટર પત્રક.',
     version: 2,
     effectiveFrom: '2026-04-01',
     status: 'verified',
-    source: 'ગુજરાત સરકાર - શાળા રોજમેળ સત્તાવાર ઓડિટ માનક ૨૦૨૬',
-    lastVerified: '2026-08-25',
+    isOfficialVerified: true,
+    source: 'https://shalarojmel.com/assets/pdf/parishishth-1.pdf',
+    lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'landscape',
     sections: [
@@ -45,13 +47,11 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
         titleGuj: 'જમા બાજુ (RECEIPTS / JAMA)',
         type: 'jama_udhar_dual',
         columns: [
-          { key: 'date', labelGuj: 'તારીખ', width: '12%' },
-          { key: 'receiptNo', labelGuj: 'રસીદ/વાઉચર નં', width: '13%' },
-          { key: 'payeeOrHead', labelGuj: 'કોની પાસેથી મળ્યા / હેડ', width: '25%' },
-          { key: 'particular', labelGuj: 'વિગત', width: '25%' },
-          { key: 'cashAmount', labelGuj: 'રોકડ (₹)', align: 'right', width: '8%' },
-          { key: 'bankAmount', labelGuj: 'બેંક (₹)', align: 'right', width: '8%' },
-          { key: 'totalAmount', labelGuj: 'કુલ (₹)', align: 'right', width: '9%' }
+          { key: 'date', labelGuj: 'તારીખ', width: '14%' },
+          { key: 'receiptNo', labelGuj: 'રસીદ/વાઉચર નં', width: '15%' },
+          { key: 'payeeOrHead', labelGuj: 'કોની પાસેથી મળ્યા / હેડ', width: '45%' },
+          { key: 'cashAmount', labelGuj: 'રોકડ (₹)', align: 'right', width: '13%' },
+          { key: 'bankAmount', labelGuj: 'બેંક (₹)', align: 'right', width: '13%' }
         ]
       },
       {
@@ -59,13 +59,11 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
         titleGuj: 'ઉધાર/જાવક બાજુ (PAYMENTS / UDHAR)',
         type: 'jama_udhar_dual',
         columns: [
-          { key: 'date', labelGuj: 'તારીખ', width: '12%' },
-          { key: 'voucherNo', labelGuj: 'વાઉચર નં', width: '13%' },
-          { key: 'paidToOrHead', labelGuj: 'કોને આપ્યા / હેડ', width: '25%' },
-          { key: 'particular', labelGuj: 'વિગત', width: '25%' },
-          { key: 'cashAmount', labelGuj: 'રોકડ (₹)', align: 'right', width: '8%' },
-          { key: 'bankAmount', labelGuj: 'બેંક (₹)', align: 'right', width: '8%' },
-          { key: 'totalAmount', labelGuj: 'કુલ (₹)', align: 'right', width: '9%' }
+          { key: 'date', labelGuj: 'તારીખ', width: '14%' },
+          { key: 'voucherNo', labelGuj: 'વાઉચર નં', width: '15%' },
+          { key: 'paidToOrHead', labelGuj: 'કોને આપ્યા / હેડ', width: '45%' },
+          { key: 'cashAmount', labelGuj: 'રોકડ (₹)', align: 'right', width: '13%' },
+          { key: 'bankAmount', labelGuj: 'બેંક (₹)', align: 'right', width: '13%' }
         ]
       }
     ],
@@ -75,7 +73,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     ]
   },
 
-  // Parishisht 02..12
+  // Parishisht 2 (Official Verified Reference: parishishth-2.pdf)
   {
     templateId: 'parishisht_02_v1',
     parishishtNo: 2,
@@ -85,77 +83,93 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     version: 1,
     effectiveFrom: '2026-04-01',
     status: 'verified',
-    source: 'ગુજરાત પ્રાથમિક શિક્ષણ વિભાગ ઓડિટ માનક',
-    lastVerified: '2026-08-25',
+    isOfficialVerified: true,
+    source: 'https://shalarojmel.com/assets/pdf/parishishth-2.pdf',
+    lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
     sections: [],
     dataMappings: []
   },
+
+  // Parishisht 3 (Official Verified Reference: parishishth-3.pdf)
   {
     templateId: 'parishisht_03_v1',
     parishishtNo: 3,
     nameGuj: 'પરિશિષ્ટ ૦૩ — બેંક જમા અને રસીદ રજિસ્ટર (Bank Receipts Register)',
     nameEng: 'Parishisht 03 - Bank Receipts & Deposits Register',
-    descriptionGuj: 'સરકાર અથવા અન્ય સ્રોત તરફથી શાળા ખાતે જમા થયેલા ચેક અને ડ્રાફ્ટની સત્તાવાર યાદી.',
+    descriptionGuj: 'સરકાર અથવા અન્ય સ્રોત તરફથી શાળા ખાતે જમા થયેલા ચેક, ડ્રાફ્ટ અને ઈ-જમા રજિસ્ટર.',
     version: 1,
     effectiveFrom: '2026-04-01',
     status: 'verified',
-    source: 'ગુજરાત પ્રાથમિક શિક્ષણ વિભાગ ઓડિટ માનક',
-    lastVerified: '2026-08-25',
+    isOfficialVerified: true,
+    source: 'https://shalarojmel.com/assets/pdf/parishishth-3.pdf',
+    lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
     sections: [],
     dataMappings: []
   },
+
+  // Parishisht 4 (Official Verified Reference: parishishth-4.pdf)
   {
     templateId: 'parishisht_04_v1',
     parishishtNo: 4,
     nameGuj: 'પરિશિષ્ટ ૦૪ — આપેલ ચેક / ઈ-પેમેન્ટ રજિસ્ટર (Issued Payments Register)',
     nameEng: 'Parishisht 04 - Issued Cheques & E-Payments Register',
-    descriptionGuj: 'સપ્લાયરોને બેંક/ચેક દ્વારા કરવામાં આવેલી સત્તાવાર ચુકવણીઓનું રજિસ્ટર.',
+    descriptionGuj: 'સપ્લાયરો અને વેન્ડરોને ચેક અથવા ઈ-પેમેન્ટ દ્વારા કરવામાં આવેલી સત્તાવાર ચુકવણીઓનું રજિસ્ટર.',
     version: 1,
     effectiveFrom: '2026-04-01',
     status: 'verified',
-    source: 'ગુજરાત પ્રાથમિક શિક્ષણ વિભાગ ઓડિટ માનક',
-    lastVerified: '2026-08-25',
+    isOfficialVerified: true,
+    source: 'https://shalarojmel.com/assets/pdf/parishishth-4.pdf',
+    lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
     sections: [],
     dataMappings: []
   },
+
+  // Parishisht 5 (Official Verified Reference: parishishth-5.pdf)
   {
     templateId: 'parishisht_05_v1',
     parishishtNo: 5,
     nameGuj: 'પરિશિષ્ટ ૦૫ — ડેડ સ્ટોક અને કાયમી સાધન રજિસ્ટર (Dead Stock Inventory)',
     nameEng: 'Parishisht 05 - Dead Stock & Permanent Equipment Register',
-    descriptionGuj: 'શાળાના કાયમી સાધનો, કમ્પ્યુટર અને ફર્નિચરનું લેન્ડસ્કેપ સત્તાવાર સ્ટોક રજિસ્ટર.',
+    descriptionGuj: 'શાળાના કાયમી સાધનો, કમ્પ્યુટર, રમતના સાધનો અને ફર્નિચરનું સત્તાવાર લેન્ડસ્કેપ સ્ટોક રજિસ્ટર.',
     version: 1,
     effectiveFrom: '2026-04-01',
     status: 'verified',
-    source: 'ગુજરાત પ્રાથમિક શિક્ષણ વિભાગ ઓડિટ માનક',
-    lastVerified: '2026-08-25',
+    isOfficialVerified: true,
+    source: 'https://shalarojmel.com/assets/pdf/parishishth-5.pdf',
+    lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'landscape',
     sections: [],
     dataMappings: []
   },
+
+  // Parishisht 6 (Pending Official Verification)
   {
     templateId: 'parishisht_06_v1',
     parishishtNo: 6,
     nameGuj: 'પરિશિષ્ટ ૦૬ — કમ્પોઝિટ સ્કૂલ ગ્રાન્ટ વપરાશ પત્રક (Composite Grant Utilization)',
     nameEng: 'Parishisht 06 - Composite Grant Utilization Sheet',
-    descriptionGuj: 'Composite School Grant આવક અને ખર્ચનું મંજૂર સત્તાવાર ઓડિટ પત્રક.',
+    descriptionGuj: 'Composite School Grant આવક અને ખર્ચનું વપરાશ પત્રક.',
     version: 1,
     effectiveFrom: '2026-04-01',
-    status: 'verified',
-    source: 'સમગ્ર શિક્ષા અભિયાન ગુજરાત',
-    lastVerified: '2026-08-25',
+    status: 'pending_verification',
+    isOfficialVerified: false,
+    verificationNoteGuj: 'Official reference not found — pending verification',
+    source: 'ગ્રાન્ટ નિયમાવલી',
+    lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
     sections: [],
     dataMappings: []
   },
+
+  // Parishisht 7 (Pending Official Verification)
   {
     templateId: 'parishisht_07_v1',
     parishishtNo: 7,
@@ -164,14 +178,18 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     descriptionGuj: 'શિક્ષકોના TLM શૈક્ષણિક સાહિત્ય વપરાશ પત્રક.',
     version: 1,
     effectiveFrom: '2026-04-01',
-    status: 'verified',
-    source: 'સમગ્ર શિક્ષા અભિયાન ગુજરાત',
-    lastVerified: '2026-08-25',
+    status: 'pending_verification',
+    isOfficialVerified: false,
+    verificationNoteGuj: 'Official reference not found — pending verification',
+    source: 'ગ્રાન્ટ નિયમાવલી',
+    lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
     sections: [],
     dataMappings: []
   },
+
+  // Parishisht 8 (Pending Official Verification)
   {
     templateId: 'parishisht_08_v1',
     parishishtNo: 8,
@@ -180,14 +198,18 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     descriptionGuj: 'શાળા રમતગમત ગ્રાન્ટ ખરીદી અને વપરાશ વિગત.',
     version: 1,
     effectiveFrom: '2026-04-01',
-    status: 'verified',
-    source: 'સમગ્ર શિક્ષા અભિયાન ગુજરાત',
-    lastVerified: '2026-08-25',
+    status: 'pending_verification',
+    isOfficialVerified: false,
+    verificationNoteGuj: 'Official reference not found — pending verification',
+    source: 'ગ્રાન્ટ નિયમાવલી',
+    lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
     sections: [],
     dataMappings: []
   },
+
+  // Parishisht 9 (Pending Official Verification)
   {
     templateId: 'parishisht_09_v1',
     parishishtNo: 9,
@@ -196,14 +218,18 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     descriptionGuj: 'સફાઈ સાધનો અને દૈનિક નિભાવ ચુકવણી પત્રક.',
     version: 1,
     effectiveFrom: '2026-04-01',
-    status: 'verified',
-    source: 'ગુજરાત પ્રાથમિક શિક્ષણ વિભાગ',
-    lastVerified: '2026-08-25',
+    status: 'pending_verification',
+    isOfficialVerified: false,
+    verificationNoteGuj: 'Official reference not found — pending verification',
+    source: 'ગ્રાન્ટ નિયમાવલી',
+    lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
     sections: [],
     dataMappings: []
   },
+
+  // Parishisht 10 (Pending Official Verification)
   {
     templateId: 'parishisht_10_v1',
     parishishtNo: 10,
@@ -212,14 +238,18 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     descriptionGuj: 'સમગ્ર શૈક્ષણિક વર્ષના વાર્ષિક ઓડિટ માટેનું સમરી પત્રક.',
     version: 1,
     effectiveFrom: '2026-04-01',
-    status: 'verified',
-    source: 'ગુજરાત પ્રાથમિક શિક્ષણ વિભાગ',
-    lastVerified: '2026-08-25',
+    status: 'pending_verification',
+    isOfficialVerified: false,
+    verificationNoteGuj: 'Official reference not found — pending verification',
+    source: 'ગ્રાન્ટ નિયમાવલી',
+    lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
     sections: [],
     dataMappings: []
   },
+
+  // Parishisht 11 (Pending Official Verification)
   {
     templateId: 'parishisht_11_v1',
     parishishtNo: 11,
@@ -228,14 +258,18 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     descriptionGuj: 'SMC બેંક ખાતા અને સંયુક્ત સહી મંજૂરી પત્રક.',
     version: 1,
     effectiveFrom: '2026-04-01',
-    status: 'verified',
-    source: 'ગુજરાત પ્રાથમિક શિક્ષણ વિભાગ',
-    lastVerified: '2026-08-25',
+    status: 'pending_verification',
+    isOfficialVerified: false,
+    verificationNoteGuj: 'Official reference not found — pending verification',
+    source: 'ગ્રાન્ટ નિયમાવલી',
+    lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
     sections: [],
     dataMappings: []
   },
+
+  // Parishisht 12 (Pending Official Verification)
   {
     templateId: 'parishisht_12_v1',
     parishishtNo: 12,
@@ -244,9 +278,11 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     descriptionGuj: 'તાલુકા પ્રાથમિક શિક્ષણાધિકારીશ્રીને જમા કરાવવાનું સત્તાવાર UC.',
     version: 1,
     effectiveFrom: '2026-04-01',
-    status: 'verified',
-    source: 'ગુજરાત પ્રાથમિક શિક્ષણ વિભાગ',
-    lastVerified: '2026-08-25',
+    status: 'pending_verification',
+    isOfficialVerified: false,
+    verificationNoteGuj: 'Official reference not found — pending verification',
+    source: 'ગ્રાન્ટ નિયમાવલી',
+    lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
     sections: [],
@@ -513,7 +549,7 @@ export function renderParishishtData(
 }
 
 /**
- * Downloads Parishisht-1 as actual PDF file with selected orientation (Portrait vs Landscape).
+ * Downloads Parishisht as actual PDF file with template default or user selected orientation.
  * Enforces 10mm safe page margins with zero content clipping.
  */
 export async function downloadParishisht1PDF(
@@ -526,24 +562,19 @@ export async function downloadParishisht1PDF(
   const rendered = renderParishishtData(parishishtNo, rojmelEntries, heads, teacher, options);
   const data = rendered.parishisht1Data;
 
-  if (!data) {
-    return { success: false, error: 'પરિશિષ્ટ-૧ ડેટા ઉપલબ્ધ નથી.' };
-  }
-
-  const selectedOrientation = options?.orientation || 'landscape';
+  const tmpl = rendered.template;
+  const selectedOrientation = options?.orientation || tmpl.orientation;
   const isLandscape = selectedOrientation === 'landscape';
 
   const schoolNameSanitized = sanitizeFileName(teacher.school.schoolNameGuj || 'School');
   const yearSanitized = sanitizeFileName(teacher.academicYear || '2026-27');
-  const fileName = `ShalaSarathi_Parishisht-01_${schoolNameSanitized}_${yearSanitized}.pdf`;
+  const fileName = `ShalaSarathi_Parishisht-${String(parishishtNo).padStart(2, '0')}_${schoolNameSanitized}_${yearSanitized}.pdf`;
 
-  // Create offscreen container with exact A4 printable content dimensions (10mm margins on all 4 sides)
+  // Create offscreen container with exact A4 printable content dimensions (10mm margins)
   const container = document.createElement('div');
   container.style.position = 'fixed';
   container.style.left = '-9999px';
   container.style.top = '-9999px';
-  // Landscape printable width = 297mm - 20mm = 277mm (~1047px at 96 DPI)
-  // Portrait printable width = 210mm - 20mm = 190mm (~718px at 96 DPI)
   container.style.width = isLandscape ? '1047px' : '718px';
   container.style.background = '#ffffff';
   container.style.color = '#0f172a';
@@ -553,144 +584,228 @@ export async function downloadParishisht1PDF(
   container.style.boxSizing = 'border-box';
 
   let pagesHTML = '';
-  data.pages.forEach((pageChunk, pIdx) => {
-    pagesHTML += `
-      <div class="pdf-page-chunk" style="padding: 10mm; background: #ffffff; box-sizing: border-box; ${pIdx > 0 ? 'page-break-before: always; margin-top: 20px;' : ''}">
-        {/* Header - Unwanted Audit Text Removed */}
-        <div style="text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 10px;">
+
+  if (parishishtNo === 1 && data) {
+    data.pages.forEach((pageChunk, pIdx) => {
+      pagesHTML += `
+        <div class="pdf-page-chunk" style="padding: 10mm; background: #ffffff; box-sizing: border-box; ${pIdx > 0 ? 'page-break-before: always; margin-top: 20px;' : ''}">
+          <div style="text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 10px;">
+            <h1 style="margin: 2px 0; font-size: 18px; font-weight: 900; color: #0f172a;">${teacher.school.schoolNameGuj}</h1>
+            <div style="font-size: 10.5px; font-weight: 600; color: #334155; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+              <span>UDISE Code: <strong>${teacher.school.udiseCode}</strong></span>
+              <span>ગામ/શહેર: <strong>${teacher.school.village || 'સત્તાવાર'}</strong></span>
+              <span>તાલુકો: <strong>${teacher.school.taluka || 'તાલુકો'}</strong></span>
+              <span>જિલ્લો: <strong>${teacher.school.district || 'જિલ્લો'}</strong></span>
+              <span>શૈક્ષણિક વર્ષ: <strong>${teacher.academicYear}</strong></span>
+            </div>
+            <div style="display: inline-block; background: #0f172a; color: white; font-size: 10px; font-weight: 800; padding: 3px 14px; border-radius: 4px; margin-top: 4px;">
+              ${rendered.titleGuj.toUpperCase()} (${isLandscape ? 'A4 LANDSCAPE' : 'A4 PORTRAIT'}) ${pageChunk.totalPages > 1 ? `- પેજ ${pageChunk.pageIndex} / ${pageChunk.totalPages}` : ''}
+            </div>
+          </div>
+
+          ${pIdx === 0 ? `
+            <div style="background: #f1f5f9; border: 1px solid #0f172a; padding: 6px 10px; font-size: 10.5px; font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between;">
+              <span>શરૂઆતની સિલક (Opening Balance):</span>
+              <div style="display: flex; gap: 14px;">
+                <span>રોકડ: <strong style="color: #065f46;">₹${data.openingCash.toLocaleString('en-IN')}</strong></span>
+                <span>બેંક: <strong style="color: #6b21a8;">₹${data.openingBank.toLocaleString('en-IN')}</strong></span>
+                <span>કુલ: <strong>₹${data.openingTotal.toLocaleString('en-IN')}</strong></span>
+              </div>
+            </div>
+          ` : ''}
+
+          <div style="display: grid; grid-template-columns: ${isLandscape ? '1fr 1fr' : '1fr'}; gap: 10px;">
+            <div style="border: 1px solid #0f172a; border-radius: 4px; overflow: hidden;">
+              <div style="background: #064e3b; color: white; text-align: center; font-weight: 800; font-size: 10.5px; padding: 4px;">જમા બાજુ (RECEIPTS / JAMA)</div>
+              <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; table-layout: fixed;">
+                <thead>
+                  <tr style="background: #f1f5f9; border-bottom: 1px solid #0f172a; font-weight: bold;">
+                    <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: left; width: 14%;">તારીખ</th>
+                    <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: left; width: 15%;">રસીદ નં</th>
+                    <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: left; width: 45%;">વિગત / હેડ</th>
+                    <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; width: 13%;">રોકડ (₹)</th>
+                    <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; width: 13%;">બેંક (₹)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${pageChunk.jamaRows.map(r => `
+                    <tr style="border-bottom: 1px solid #cbd5e1;">
+                      <td style="padding: 4px; border-right: 1px solid #0f172a; font-weight: bold; word-break: break-word;">${r.date}</td>
+                      <td style="padding: 4px; border-right: 1px solid #0f172a; font-family: monospace; font-size: 9px; word-break: break-all;">${r.receiptNo}</td>
+                      <td style="padding: 4px; border-right: 1px solid #0f172a; word-break: break-word;"><strong>${r.payeeOrHead}</strong><br/>${r.particular}</td>
+                      <td style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; color: #065f46; font-weight: bold;">${r.cashAmount > 0 ? `₹${r.cashAmount.toLocaleString('en-IN')}` : '-'}</td>
+                      <td style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; color: #6b21a8; font-weight: bold;">${r.bankAmount > 0 ? `₹${r.bankAmount.toLocaleString('en-IN')}` : '-'}</td>
+                    </tr>
+                  `).join('')}
+
+                  ${pIdx === pageChunk.totalPages - 1 ? `
+                    <tr style="background: #e2e8f0; font-weight: 900; border-top: 2px solid #0f172a;">
+                      <td colspan="3" style="padding: 5px; border-right: 1px solid #0f172a;">કુલ જમા આવક:</td>
+                      <td style="padding: 5px; border-right: 1px solid #0f172a; text-align: right; color: #065f46;">₹${data.jamaTotalCash.toLocaleString('en-IN')}</td>
+                      <td style="padding: 5px; border-right: 1px solid #0f172a; text-align: right; color: #6b21a8;">₹${data.jamaTotalBank.toLocaleString('en-IN')}</td>
+                    </tr>
+                  ` : ''}
+                </tbody>
+              </table>
+            </div>
+
+            <div style="border: 1px solid #0f172a; border-radius: 4px; overflow: hidden;">
+              <div style="background: #881337; color: white; text-align: center; font-weight: 800; font-size: 10.5px; padding: 4px;">ઉધાર/જાવક બાજુ (PAYMENTS / UDHAR)</div>
+              <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; table-layout: fixed;">
+                <thead>
+                  <tr style="background: #f1f5f9; border-bottom: 1px solid #0f172a; font-weight: bold;">
+                    <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: left; width: 14%;">તારીખ</th>
+                    <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: left; width: 15%;">વાઉચર નં</th>
+                    <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: left; width: 45%;">વિગત / હેડ</th>
+                    <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; width: 13%;">રોકડ (₹)</th>
+                    <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; width: 13%;">બેંક (₹)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${pageChunk.udharRows.map(r => `
+                    <tr style="border-bottom: 1px solid #cbd5e1;">
+                      <td style="padding: 4px; border-right: 1px solid #0f172a; font-weight: bold; word-break: break-word;">${r.date}</td>
+                      <td style="padding: 4px; border-right: 1px solid #0f172a; font-family: monospace; font-size: 9px; word-break: break-all;">${r.voucherNo}</td>
+                      <td style="padding: 4px; border-right: 1px solid #0f172a; word-break: break-word;"><strong>${r.paidToOrHead}</strong><br/>${r.particular}</td>
+                      <td style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; color: #9f1239; font-weight: bold;">${r.cashAmount > 0 ? `₹${r.cashAmount.toLocaleString('en-IN')}` : '-'}</td>
+                      <td style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; color: #6b21a8; font-weight: bold;">${r.bankAmount > 0 ? `₹${r.bankAmount.toLocaleString('en-IN')}` : '-'}</td>
+                    </tr>
+                  `).join('')}
+
+                  ${pIdx === pageChunk.totalPages - 1 ? `
+                    <tr style="background: #e2e8f0; font-weight: 900; border-top: 2px solid #0f172a;">
+                      <td colspan="3" style="padding: 5px; border-right: 1px solid #0f172a;">કુલ જાવક/ખર્ચ:</td>
+                      <td style="padding: 5px; border-right: 1px solid #0f172a; text-align: right; color: #9f1239;">₹${data.udharTotalCash.toLocaleString('en-IN')}</td>
+                      <td style="padding: 5px; border-right: 1px solid #0f172a; text-align: right; color: #6b21a8;">₹${data.udharTotalBank.toLocaleString('en-IN')}</td>
+                    </tr>
+                  ` : ''}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          ${pIdx === pageChunk.totalPages - 1 ? `
+            <div style="background: #0f172a; color: white; padding: 8px 12px; font-size: 10.5px; font-weight: bold; margin-top: 12px; border-radius: 4px; display: flex; justify-content: space-between;">
+              <span>આખર સિલક બાકી (Closing Balance In Hand):</span>
+              <div style="display: flex; gap: 16px; font-family: monospace;">
+                <span>રોકડ: <strong>₹${data.closingCash.toLocaleString('en-IN')}</strong></span>
+                <span>બેંક: <strong>₹${data.closingBank.toLocaleString('en-IN')}</strong></span>
+                <span>કુલ આખર સિલક: <strong style="color: #fbbf24; font-size: 11px;">₹${data.closingTotal.toLocaleString('en-IN')}</strong></span>
+              </div>
+            </div>
+
+            <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 10.5px; font-weight: bold; color: #0f172a;">
+              <div style="text-align: center;">
+                <div>તૈયાર કરનાર શિક્ષક સહી</div>
+                <div style="border-bottom: 1px solid #64748b; width: 130px; margin-top: 25px;"></div>
+              </div>
+              <div style="text-align: center;">
+                <div>ઓડિટ તપાસનાર શિક્ષક સહી</div>
+                <div style="border-bottom: 1px solid #64748b; width: 130px; margin-top: 25px;"></div>
+              </div>
+              <div style="text-align: center;">
+                <div>મુખ્ય શિક્ષક / આચાર્ય સહી & સિક્કો</div>
+                <div style="border-bottom: 1px solid #64748b; width: 170px; margin-top: 25px;"></div>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    });
+  } else {
+    // General Parishisht (02..12) Template Render
+    pagesHTML = `
+      <div class="pdf-page-chunk" style="padding: 10mm; background: #ffffff; box-sizing: border-box;">
+        <div style="text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 12px;">
           <h1 style="margin: 2px 0; font-size: 18px; font-weight: 900; color: #0f172a;">${teacher.school.schoolNameGuj}</h1>
           <div style="font-size: 10.5px; font-weight: 600; color: #334155; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
-            <span>UDISE Code: <strong>${teacher.school.udiseCode}</strong></span>
-            <span>ગામ/શહેર: <strong>${teacher.school.village || 'સત્તાવાર'}</strong></span>
+            <span>UDISE: <strong>${teacher.school.udiseCode}</strong></span>
+            <span>ગામ: <strong>${teacher.school.village || 'સત્તાવાર'}</strong></span>
             <span>તાલુકો: <strong>${teacher.school.taluka || 'તાલુકો'}</strong></span>
-            <span>જિલ્લો: <strong>${teacher.school.district || 'જિલ્લો'}</strong></span>
-            <span>શૈક્ષણિક વર્ષ: <strong>${teacher.academicYear}</strong></span>
+            <span>વર્ષ: <strong>${teacher.academicYear}</strong></span>
           </div>
-          <div style="display: inline-block; background: #0f172a; color: white; font-size: 10px; font-weight: 800; padding: 3px 14px; border-radius: 4px; margin-top: 4px;">
-            ${rendered.titleGuj.toUpperCase()} (${isLandscape ? 'A4 LANDSCAPE' : 'A4 PORTRAIT'}) ${pageChunk.totalPages > 1 ? `- પેજ ${pageChunk.pageIndex} / ${pageChunk.totalPages}` : ''}
+          <div style="display: inline-block; background: #0f172a; color: white; font-size: 10.5px; font-weight: 800; padding: 4px 16px; border-radius: 4px; margin-top: 6px;">
+            ${tmpl.nameGuj.toUpperCase()}
           </div>
         </div>
 
-        ${pIdx === 0 ? `
-          <div style="background: #f1f5f9; border: 1px solid #0f172a; padding: 6px 10px; font-size: 10.5px; font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between;">
-            <span>શરૂઆતની સિલક (Opening Balance):</span>
-            <div style="display: flex; gap: 14px;">
-              <span>રોકડ: <strong style="color: #065f46;">₹${data.openingCash.toLocaleString('en-IN')}</strong></span>
-              <span>બેંક: <strong style="color: #6b21a8;">₹${data.openingBank.toLocaleString('en-IN')}</strong></span>
-              <span>કુલ: <strong>₹${data.openingTotal.toLocaleString('en-IN')}</strong></span>
-            </div>
+        ${!tmpl.isOfficialVerified ? `
+          <div style="background: #fef2f2; border: 1px solid #f87171; color: #991b1b; padding: 6px 12px; font-size: 10px; font-weight: bold; border-radius: 4px; margin-bottom: 12px; text-align: center;">
+            ⚠️ Official reference not found — pending verification
           </div>
         ` : ''}
 
-        {/* Dual Tables: Grid 2 Columns for Landscape, Stacked 1 Column for Portrait */}
-        <div style="display: grid; grid-template-columns: ${isLandscape ? '1fr 1fr' : '1fr'}; gap: 10px;">
-          
-          {/* JAMA / RECEIPT TABLE */}
-          <div style="border: 1px solid #0f172a; border-radius: 4px; overflow: hidden;">
-            <div style="background: #064e3b; color: white; text-align: center; font-weight: 800; font-size: 10.5px; padding: 4px;">જમા બાજુ (RECEIPTS / JAMA)</div>
-            <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; table-layout: fixed;">
-              <thead>
-                <tr style="background: #f1f5f9; border-bottom: 1px solid #0f172a; font-weight: bold;">
-                  <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: left; width: 14%;">તારીખ</th>
-                  <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: left; width: 15%;">રસીદ નં</th>
-                  <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: left; width: 45%;">વિગત / હેડ</th>
-                  <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; width: 13%;">રોકડ (₹)</th>
-                  <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; width: 13%;">બેંક (₹)</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${pageChunk.jamaRows.map(r => `
-                  <tr style="border-bottom: 1px solid #cbd5e1;">
-                    <td style="padding: 4px; border-right: 1px solid #0f172a; font-weight: bold; word-break: break-word;">${r.date}</td>
-                    <td style="padding: 4px; border-right: 1px solid #0f172a; font-family: monospace; font-size: 9px; word-break: break-all;">${r.receiptNo}</td>
-                    <td style="padding: 4px; border-right: 1px solid #0f172a; word-break: break-word;"><strong>${r.payeeOrHead}</strong><br/>${r.particular}</td>
-                    <td style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; color: #065f46; font-weight: bold;">${r.cashAmount > 0 ? `₹${r.cashAmount.toLocaleString('en-IN')}` : '-'}</td>
-                    <td style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; color: #6b21a8; font-weight: bold;">${r.bankAmount > 0 ? `₹${r.bankAmount.toLocaleString('en-IN')}` : '-'}</td>
-                  </tr>
-                `).join('')}
-
-                ${pIdx === pageChunk.totalPages - 1 ? `
-                  <tr style="background: #e2e8f0; font-weight: 900; border-top: 2px solid #0f172a;">
-                    <td colspan="3" style="padding: 5px; border-right: 1px solid #0f172a;">કુલ જમા આવક:</td>
-                    <td style="padding: 5px; border-right: 1px solid #0f172a; text-align: right; color: #065f46;">₹${data.jamaTotalCash.toLocaleString('en-IN')}</td>
-                    <td style="padding: 5px; border-right: 1px solid #0f172a; text-align: right; color: #6b21a8;">₹${data.jamaTotalBank.toLocaleString('en-IN')}</td>
-                  </tr>
-                ` : ''}
-              </tbody>
-            </table>
-          </div>
-
-          {/* UDHAR / PAYMENT TABLE */}
-          <div style="border: 1px solid #0f172a; border-radius: 4px; overflow: hidden;">
-            <div style="background: #881337; color: white; text-align: center; font-weight: 800; font-size: 10.5px; padding: 4px;">ઉધાર/જાવક બાજુ (PAYMENTS / UDHAR)</div>
-            <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; table-layout: fixed;">
-              <thead>
-                <tr style="background: #f1f5f9; border-bottom: 1px solid #0f172a; font-weight: bold;">
-                  <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: left; width: 14%;">તારીખ</th>
-                  <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: left; width: 15%;">વાઉચર નં</th>
-                  <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: left; width: 45%;">વિગત / હેડ</th>
-                  <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; width: 13%;">રોકડ (₹)</th>
-                  <th style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; width: 13%;">બેંક (₹)</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${pageChunk.udharRows.map(r => `
-                  <tr style="border-bottom: 1px solid #cbd5e1;">
-                    <td style="padding: 4px; border-right: 1px solid #0f172a; font-weight: bold; word-break: break-word;">${r.date}</td>
-                    <td style="padding: 4px; border-right: 1px solid #0f172a; font-family: monospace; font-size: 9px; word-break: break-all;">${r.voucherNo}</td>
-                    <td style="padding: 4px; border-right: 1px solid #0f172a; word-break: break-word;"><strong>${r.paidToOrHead}</strong><br/>${r.particular}</td>
-                    <td style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; color: #9f1239; font-weight: bold;">${r.cashAmount > 0 ? `₹${r.cashAmount.toLocaleString('en-IN')}` : '-'}</td>
-                    <td style="padding: 4px; border-right: 1px solid #0f172a; text-align: right; color: #6b21a8; font-weight: bold;">${r.bankAmount > 0 ? `₹${r.bankAmount.toLocaleString('en-IN')}` : '-'}</td>
-                  </tr>
-                `).join('')}
-
-                ${pIdx === pageChunk.totalPages - 1 ? `
-                  <tr style="background: #e2e8f0; font-weight: 900; border-top: 2px solid #0f172a;">
-                    <td colspan="3" style="padding: 5px; border-right: 1px solid #0f172a;">કુલ જાવક/ખર્ચ:</td>
-                    <td style="padding: 5px; border-right: 1px solid #0f172a; text-align: right; color: #9f1239;">₹${data.udharTotalCash.toLocaleString('en-IN')}</td>
-                    <td style="padding: 5px; border-right: 1px solid #0f172a; text-align: right; color: #6b21a8;">₹${data.udharTotalBank.toLocaleString('en-IN')}</td>
-                  </tr>
-                ` : ''}
-              </tbody>
-            </table>
-          </div>
-
+        <div style="background: #f8fafc; border: 1px solid #0f172a; padding: 8px 12px; font-size: 10.5px; font-weight: bold; margin-bottom: 12px; display: flex; justify-content: space-between;">
+          <span>કુલ આવક: ₹${rendered.summary.totalIncome.toLocaleString('en-IN')}</span>
+          <span>કુલ જાવક: ₹${rendered.summary.totalExpense.toLocaleString('en-IN')}</span>
+          <span>આખર સિલક: ₹${rendered.summary.closingBalance.toLocaleString('en-IN')}</span>
         </div>
 
-        ${pIdx === pageChunk.totalPages - 1 ? `
-          <div style="background: #0f172a; color: white; padding: 8px 12px; font-size: 10.5px; font-weight: bold; margin-top: 12px; border-radius: 4px; display: flex; justify-content: space-between;">
-            <span>આખર સિલક બાકી (Closing Balance In Hand):</span>
-            <div style="display: flex; gap: 16px; font-family: monospace;">
-              <span>રોકડ: <strong>₹${data.closingCash.toLocaleString('en-IN')}</strong></span>
-              <span>બેંક: <strong>₹${data.closingBank.toLocaleString('en-IN')}</strong></span>
-              <span>કુલ આખર સિલક: <strong style="color: #fbbf24; font-size: 11px;">₹${data.closingTotal.toLocaleString('en-IN')}</strong></span>
-            </div>
-          </div>
+        <div style="border: 1px solid #0f172a; border-radius: 4px; overflow: hidden;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+            <thead>
+              <tr style="background: #f1f5f9; border-bottom: 1px solid #0f172a; font-weight: bold;">
+                ${parishishtNo === 2 ? `
+                  <th style="padding: 6px; border-right: 1px solid #0f172a; text-align: left;">ગ્રાન્ટ હેડ નામ</th>
+                  <th style="padding: 6px; border-right: 1px solid #0f172a; text-align: right;">મંજૂર ગ્રાન્ટ (₹)</th>
+                  <th style="padding: 6px; border-right: 1px solid #0f172a; text-align: right;">કુલ ખર્ચ (₹)</th>
+                  <th style="padding: 6px; text-align: right;">બાકી સિલક (₹)</th>
+                ` : `
+                  <th style="padding: 6px; border-right: 1px solid #0f172a; text-align: left;">તારીખ</th>
+                  <th style="padding: 6px; border-right: 1px solid #0f172a; text-align: left;">વાઉચર નં</th>
+                  <th style="padding: 6px; border-right: 1px solid #0f172a; text-align: left;">ગ્રાન્ટ હેડ</th>
+                  <th style="padding: 6px; border-right: 1px solid #0f172a; text-align: left;">વિગત</th>
+                  <th style="padding: 6px; border-right: 1px solid #0f172a; text-align: right;">આવક (₹)</th>
+                  <th style="padding: 6px; border-right: 1px solid #0f172a; text-align: right;">જાવક (₹)</th>
+                  <th style="padding: 6px; text-align: right;">સિલક (₹)</th>
+                `}
+              </tr>
+            </thead>
+            <tbody>
+              ${rendered.generalRows?.map(r => `
+                <tr style="border-bottom: 1px solid #cbd5e1;">
+                  ${parishishtNo === 2 ? `
+                    <td style="padding: 6px; border-right: 1px solid #0f172a; font-weight: bold;">${r.headNameGuj}</td>
+                    <td style="padding: 6px; border-right: 1px solid #0f172a; text-align: right;">₹${r.grantLimit.toLocaleString('en-IN')}</td>
+                    <td style="padding: 6px; border-right: 1px solid #0f172a; text-align: right; color: #9f1239;">₹${r.totalSpent.toLocaleString('en-IN')}</td>
+                    <td style="padding: 6px; text-align: right; font-weight: bold; color: #065f46;">₹${r.remaining.toLocaleString('en-IN')}</td>
+                  ` : `
+                    <td style="padding: 6px; border-right: 1px solid #0f172a; font-weight: bold;">${r.date}</td>
+                    <td style="padding: 6px; border-right: 1px solid #0f172a; font-family: monospace;">${r.voucherNo}</td>
+                    <td style="padding: 6px; border-right: 1px solid #0f172a;">${r.headNameGuj}</td>
+                    <td style="padding: 6px; border-right: 1px solid #0f172a;">${r.particularGuj}</td>
+                    <td style="padding: 6px; border-right: 1px solid #0f172a; text-align: right; color: #065f46;">${r.income > 0 ? `₹${r.income.toLocaleString('en-IN')}` : '-'}</td>
+                    <td style="padding: 6px; border-right: 1px solid #0f172a; text-align: right; color: #9f1239;">${r.expense > 0 ? `₹${r.expense.toLocaleString('en-IN')}` : '-'}</td>
+                    <td style="padding: 6px; text-align: right; font-weight: bold;">₹${r.balance.toLocaleString('en-IN')}</td>
+                  `}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
 
-          <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 10.5px; font-weight: bold; color: #0f172a;">
-            <div style="text-align: center;">
-              <div>તૈયાર કરનાર શિક્ષક સહી</div>
-              <div style="border-bottom: 1px solid #64748b; width: 130px; margin-top: 25px;"></div>
-            </div>
-            <div style="text-align: center;">
-              <div>ઓડિટ તપાસનાર શિક્ષક સહી</div>
-              <div style="border-bottom: 1px solid #64748b; width: 130px; margin-top: 25px;"></div>
-            </div>
-            <div style="text-align: center;">
-              <div>મુખ્ય શિક્ષક / આચાર્ય સહી & સિક્કો</div>
-              <div style="border-bottom: 1px solid #64748b; width: 170px; margin-top: 25px;"></div>
-            </div>
+        <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; color: #0f172a;">
+          <div style="text-align: center;">
+            <div>તૈયાર કરનાર શિક્ષક સહી</div>
+            <div style="border-bottom: 1px solid #64748b; width: 140px; margin-top: 30px;"></div>
           </div>
-        ` : ''}
+          <div style="text-align: center;">
+            <div>ઓડિટ તપાસનાર શિક્ષક સહી</div>
+            <div style="border-bottom: 1px solid #64748b; width: 140px; margin-top: 30px;"></div>
+          </div>
+          <div style="text-align: center;">
+            <div>મુખ્ય શિક્ષક / આચાર્ય સહી & સિક્કો</div>
+            <div style="border-bottom: 1px solid #64748b; width: 180px; margin-top: 30px;"></div>
+          </div>
+        </div>
       </div>
     `;
-  });
+  }
 
   container.innerHTML = pagesHTML;
   document.body.appendChild(container);
 
   try {
-    // Instantiate jsPDF matching selected orientation
     const pdf = new jsPDF({
       orientation: selectedOrientation,
       unit: 'mm',
@@ -722,7 +837,6 @@ export async function downloadParishisht1PDF(
 
     const pdfBlob = pdf.output('blob');
 
-    // Strict Binary PDF Validation
     const isValidPDF = await validatePDFBlob(pdfBlob);
 
     if (!isValidPDF) {
@@ -807,6 +921,7 @@ export async function generateBatchParishishtZip(
     const docText = `==================================================
 ${teacher.school.schoolNameGuj} - UDISE: ${teacher.school.udiseCode}
 ${tmpl.nameGuj} (${tmpl.nameEng})
+સ્થિતિ: ${tmpl.isOfficialVerified ? 'સત્તાવાર ચકાસાયેલ' : 'Official reference not found — pending verification'}
 વર્ઝન: v${tmpl.version}.0 | સ્રોત: ${tmpl.source}
 શૈક્ષણિક વર્ષ: ${teacher.academicYear} | તારીખ: ${options?.documentDate || new Date().toISOString().split('T')[0]}
 ==================================================

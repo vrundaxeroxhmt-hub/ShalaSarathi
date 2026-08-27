@@ -36,6 +36,8 @@ export interface ParishishtTemplate {
   lastVerified: string;
   pageSize: 'A4';
   orientation: 'portrait' | 'landscape';
+  isOfficialVerified?: boolean;
+  verificationNoteGuj?: string;
   sections: TemplateSection[];
   dataMappings: DataMappingConfig[];
   requiredFields?: string[];
