@@ -31,7 +31,8 @@ export interface ParishishtTemplate {
   version: number;
   effectiveFrom: string; // YYYY-MM-DD
   effectiveTo?: string; // YYYY-MM-DD
-  status: 'verified' | 'pending_verification';
+  status: 'verified' | 'reference-working';
+  sourceType?: 'official-reference' | 'working-reference';
   source: string;
   lastVerified: string;
   pageSize: 'A4';

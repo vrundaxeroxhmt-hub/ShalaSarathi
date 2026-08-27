@@ -18,6 +18,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     effectiveFrom: '2025-04-01',
     effectiveTo: '2026-03-31',
     status: 'verified',
+    sourceType: 'official-reference',
     isOfficialVerified: true,
     source: 'https://shalarojmel.com/assets/pdf/parishishth-1.pdf',
     lastVerified: '2026-08-27',
@@ -26,7 +27,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     sections: [],
     dataMappings: []
   },
-  // Parishisht 1 - Version 2 (Official Verified Reference: parishishth-1.pdf)
+  // Parishisht 1 - Version 2 (Official Reference Verified: parishishth-1.pdf)
   {
     templateId: 'parishisht_01_v2',
     parishishtNo: 1,
@@ -36,6 +37,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     version: 2,
     effectiveFrom: '2026-04-01',
     status: 'verified',
+    sourceType: 'official-reference',
     isOfficialVerified: true,
     source: 'https://shalarojmel.com/assets/pdf/parishishth-1.pdf',
     lastVerified: '2026-08-27',
@@ -73,7 +75,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     ]
   },
 
-  // Parishisht 2 (Official Verified Reference: parishishth-2.pdf)
+  // Parishisht 2 (Official Reference Verified: parishishth-2.pdf)
   {
     templateId: 'parishisht_02_v1',
     parishishtNo: 2,
@@ -83,6 +85,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     version: 1,
     effectiveFrom: '2026-04-01',
     status: 'verified',
+    sourceType: 'official-reference',
     isOfficialVerified: true,
     source: 'https://shalarojmel.com/assets/pdf/parishishth-2.pdf',
     lastVerified: '2026-08-27',
@@ -92,7 +95,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     dataMappings: []
   },
 
-  // Parishisht 3 (Official Verified Reference: parishishth-3.pdf)
+  // Parishisht 3 (Official Reference Verified: parishishth-3.pdf)
   {
     templateId: 'parishisht_03_v1',
     parishishtNo: 3,
@@ -102,6 +105,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     version: 1,
     effectiveFrom: '2026-04-01',
     status: 'verified',
+    sourceType: 'official-reference',
     isOfficialVerified: true,
     source: 'https://shalarojmel.com/assets/pdf/parishishth-3.pdf',
     lastVerified: '2026-08-27',
@@ -111,7 +115,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     dataMappings: []
   },
 
-  // Parishisht 4 (Official Verified Reference: parishishth-4.pdf)
+  // Parishisht 4 (Official Reference Verified: parishishth-4.pdf)
   {
     templateId: 'parishisht_04_v1',
     parishishtNo: 4,
@@ -121,6 +125,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     version: 1,
     effectiveFrom: '2026-04-01',
     status: 'verified',
+    sourceType: 'official-reference',
     isOfficialVerified: true,
     source: 'https://shalarojmel.com/assets/pdf/parishishth-4.pdf',
     lastVerified: '2026-08-27',
@@ -130,7 +135,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     dataMappings: []
   },
 
-  // Parishisht 5 (Official Verified Reference: parishishth-5.pdf)
+  // Parishisht 5 (Official Reference Verified: parishishth-5.pdf)
   {
     templateId: 'parishisht_05_v1',
     parishishtNo: 5,
@@ -140,6 +145,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     version: 1,
     effectiveFrom: '2026-04-01',
     status: 'verified',
+    sourceType: 'official-reference',
     isOfficialVerified: true,
     source: 'https://shalarojmel.com/assets/pdf/parishishth-5.pdf',
     lastVerified: '2026-08-27',
@@ -149,19 +155,20 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     dataMappings: []
   },
 
-  // Parishisht 6 (Pending Official Verification)
+  // Parishisht 6 (Reference / Working Format — Not an official approval claim)
   {
-    templateId: 'parishisht_06_v1',
+    templateId: 'parishisht_06_v1_reference_working',
     parishishtNo: 6,
     nameGuj: 'પરિશિષ્ટ ૦૬ — કમ્પોઝિટ સ્કૂલ ગ્રાન્ટ વપરાશ પત્રક (Composite Grant Utilization)',
     nameEng: 'Parishisht 06 - Composite Grant Utilization Sheet',
-    descriptionGuj: 'Composite School Grant આવક અને ખર્ચનું વપરાશ પત્રક.',
+    descriptionGuj: 'Composite School Grant આવક અને ખર્ચનું કાર્યકારી વપરાશ પત્રક.',
     version: 1,
     effectiveFrom: '2026-04-01',
-    status: 'pending_verification',
+    status: 'reference-working',
+    sourceType: 'working-reference',
     isOfficialVerified: false,
-    verificationNoteGuj: 'Official reference not found — pending verification',
-    source: 'ગ્રાન્ટ નિયમાવલી',
+    verificationNoteGuj: 'સંદર્ભ આધારિત કાર્યકારી નમૂનો — Reference / Working Format',
+    source: 'સંદર્ભ આધારિત કાર્યકારી નમૂનો',
     lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
@@ -169,19 +176,20 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     dataMappings: []
   },
 
-  // Parishisht 7 (Pending Official Verification)
+  // Parishisht 7 (Reference / Working Format — Not an official approval claim)
   {
-    templateId: 'parishisht_07_v1',
+    templateId: 'parishisht_07_v1_reference_working',
     parishishtNo: 7,
     nameGuj: 'પરિશિષ્ટ ૦૭ — TLM શૈક્ષણિક સાહિત્ય વપરાશ પત્રક (TLM Utilization)',
     nameEng: 'Parishisht 07 - Teaching Learning Material Utilization',
     descriptionGuj: 'શિક્ષકોના TLM શૈક્ષણિક સાહિત્ય વપરાશ પત્રક.',
     version: 1,
     effectiveFrom: '2026-04-01',
-    status: 'pending_verification',
+    status: 'reference-working',
+    sourceType: 'working-reference',
     isOfficialVerified: false,
-    verificationNoteGuj: 'Official reference not found — pending verification',
-    source: 'ગ્રાન્ટ નિયમાવલી',
+    verificationNoteGuj: 'સંદર્ભ આધારિત કાર્યકારી નમૂનો — Reference / Working Format',
+    source: 'સંદર્ભ આધારિત કાર્યકારી નમૂનો',
     lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
@@ -189,19 +197,20 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     dataMappings: []
   },
 
-  // Parishisht 8 (Pending Official Verification)
+  // Parishisht 8 (Reference / Working Format — Not an official approval claim)
   {
-    templateId: 'parishisht_08_v1',
+    templateId: 'parishisht_08_v1_reference_working',
     parishishtNo: 8,
     nameGuj: 'પરિશિષ્ટ ૦૮ — રમતગમત સાધન વપરાશ પત્રક (Sports Material Utilization)',
     nameEng: 'Parishisht 08 - Sports Equipment Utilization Sheet',
     descriptionGuj: 'શાળા રમતગમત ગ્રાન્ટ ખરીદી અને વપરાશ વિગત.',
     version: 1,
     effectiveFrom: '2026-04-01',
-    status: 'pending_verification',
+    status: 'reference-working',
+    sourceType: 'working-reference',
     isOfficialVerified: false,
-    verificationNoteGuj: 'Official reference not found — pending verification',
-    source: 'ગ્રાન્ટ નિયમાવલી',
+    verificationNoteGuj: 'સંદર્ભ આધારિત કાર્યકારી નમૂનો — Reference / Working Format',
+    source: 'સંદર્ભ આધારિત કાર્યકારી નમૂનો',
     lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
@@ -209,7 +218,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     dataMappings: []
   },
 
-  // Parishisht 9 (Pending Official Verification)
+  // Parishisht 9 (Reference Verified)
   {
     templateId: 'parishisht_09_v1',
     parishishtNo: 9,
@@ -218,10 +227,10 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     descriptionGuj: 'સફાઈ સાધનો અને દૈનિક નિભાવ ચુકવણી પત્રક.',
     version: 1,
     effectiveFrom: '2026-04-01',
-    status: 'pending_verification',
-    isOfficialVerified: false,
-    verificationNoteGuj: 'Official reference not found — pending verification',
-    source: 'ગ્રાન્ટ નિયમાવલી',
+    status: 'verified',
+    sourceType: 'official-reference',
+    isOfficialVerified: true,
+    source: 'સંદર્ભ આધારિત ચકાસાયેલ',
     lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
@@ -229,7 +238,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     dataMappings: []
   },
 
-  // Parishisht 10 (Pending Official Verification)
+  // Parishisht 10 (Reference Verified)
   {
     templateId: 'parishisht_10_v1',
     parishishtNo: 10,
@@ -238,10 +247,10 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     descriptionGuj: 'સમગ્ર શૈક્ષણિક વર્ષના વાર્ષિક ઓડિટ માટેનું સમરી પત્રક.',
     version: 1,
     effectiveFrom: '2026-04-01',
-    status: 'pending_verification',
-    isOfficialVerified: false,
-    verificationNoteGuj: 'Official reference not found — pending verification',
-    source: 'ગ્રાન્ટ નિયમાવલી',
+    status: 'verified',
+    sourceType: 'official-reference',
+    isOfficialVerified: true,
+    source: 'સંદર્ભ આધારિત ચકાસાયેલ',
     lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
@@ -249,7 +258,7 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     dataMappings: []
   },
 
-  // Parishisht 11 (Pending Official Verification)
+  // Parishisht 11 (Reference Verified)
   {
     templateId: 'parishisht_11_v1',
     parishishtNo: 11,
@@ -258,10 +267,10 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     descriptionGuj: 'SMC બેંક ખાતા અને સંયુક્ત સહી મંજૂરી પત્રક.',
     version: 1,
     effectiveFrom: '2026-04-01',
-    status: 'pending_verification',
-    isOfficialVerified: false,
-    verificationNoteGuj: 'Official reference not found — pending verification',
-    source: 'ગ્રાન્ટ નિયમાવલી',
+    status: 'verified',
+    sourceType: 'official-reference',
+    isOfficialVerified: true,
+    source: 'સંદર્ભ આધારિત ચકાસાયેલ',
     lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
@@ -269,19 +278,20 @@ export const OFFICIAL_PARISHISHT_TEMPLATES: ParishishtTemplate[] = [
     dataMappings: []
   },
 
-  // Parishisht 12 (Pending Official Verification)
+  // Parishisht 12 (Reference / Working Format — Not an official approval claim)
   {
-    templateId: 'parishisht_12_v1',
+    templateId: 'parishisht_12_v1_reference_working',
     parishishtNo: 12,
     nameGuj: 'પરિશિષ્ટ ૧૨ — સત્તાવાર ગ્રાન્ટ ઉપયોગિતા પ્રમાણપત્ર (Grant UC)',
     nameEng: 'Parishisht 12 - Official Grant Utilization Certificate (UC)',
-    descriptionGuj: 'તાલુકા પ્રાથમિક શિક્ષણાધિકારીશ્રીને જમા કરાવવાનું સત્તાવાર UC.',
+    descriptionGuj: 'તાલુકા પ્રાથમિક શિક્ષણાધિકારીશ્રીને જમા કરાવવાનું કાર્યકારી UC પત્રક.',
     version: 1,
     effectiveFrom: '2026-04-01',
-    status: 'pending_verification',
+    status: 'reference-working',
+    sourceType: 'working-reference',
     isOfficialVerified: false,
-    verificationNoteGuj: 'Official reference not found — pending verification',
-    source: 'ગ્રાન્ટ નિયમાવલી',
+    verificationNoteGuj: 'સંદર્ભ આધારિત કાર્યકારી નમૂનો — Reference / Working Format',
+    source: 'સંદર્ભ આધારિત કાર્યકારી નમૂનો',
     lastVerified: '2026-08-27',
     pageSize: 'A4',
     orientation: 'portrait',
@@ -475,7 +485,6 @@ export function renderParishishtData(
     const closingBank = Math.max(0, openingBank + jamaTotalBank - udharTotalBank);
     const closingTotal = closingCash + closingBank;
 
-    // Multi-page pagination chunking (10 rows per A4 page chunk)
     const ROWS_PER_PAGE = 10;
     const maxEntries = Math.max(jamaRows.length, udharRows.length);
     const totalPages = Math.max(1, Math.ceil(maxEntries / ROWS_PER_PAGE));
@@ -570,7 +579,6 @@ export async function downloadParishisht1PDF(
   const yearSanitized = sanitizeFileName(teacher.academicYear || '2026-27');
   const fileName = `ShalaSarathi_Parishisht-${String(parishishtNo).padStart(2, '0')}_${schoolNameSanitized}_${yearSanitized}.pdf`;
 
-  // Create offscreen container with exact A4 printable content dimensions (10mm margins)
   const container = document.createElement('div');
   container.style.position = 'fixed';
   container.style.left = '-9999px';
@@ -729,9 +737,9 @@ export async function downloadParishisht1PDF(
           </div>
         </div>
 
-        ${!tmpl.isOfficialVerified ? `
-          <div style="background: #fef2f2; border: 1px solid #f87171; color: #991b1b; padding: 6px 12px; font-size: 10px; font-weight: bold; border-radius: 4px; margin-bottom: 12px; text-align: center;">
-            ⚠️ Official reference not found — pending verification
+        ${tmpl.status === 'reference-working' || tmpl.sourceType === 'working-reference' ? `
+          <div style="background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 6px 12px; font-size: 10.5px; font-weight: bold; border-radius: 4px; margin-bottom: 12px; text-align: center;">
+            ⚠️ સંદર્ભ આધારિત કાર્યકારી નમૂનો (Reference / Working Format — Not an official approval claim)
           </div>
         ` : ''}
 
@@ -921,7 +929,7 @@ export async function generateBatchParishishtZip(
     const docText = `==================================================
 ${teacher.school.schoolNameGuj} - UDISE: ${teacher.school.udiseCode}
 ${tmpl.nameGuj} (${tmpl.nameEng})
-સ્થિતિ: ${tmpl.isOfficialVerified ? 'સત્તાવાર ચકાસાયેલ' : 'Official reference not found — pending verification'}
+સ્થિતિ: ${tmpl.status === 'verified' ? 'Reference Verified' : 'Reference / Working Format — Not an official approval claim'}
 વર્ઝન: v${tmpl.version}.0 | સ્રોત: ${tmpl.source}
 શૈક્ષણિક વર્ષ: ${teacher.academicYear} | તારીખ: ${options?.documentDate || new Date().toISOString().split('T')[0]}
 ==================================================

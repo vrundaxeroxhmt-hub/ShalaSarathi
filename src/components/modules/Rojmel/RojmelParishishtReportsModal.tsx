@@ -17,7 +17,8 @@ import {
   Loader2,
   Layout,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  Info
 } from 'lucide-react';
 import { ParishishtNumber } from '@/types/parishishtTemplate';
 import { RojmelEntry, HeadItem } from '@/types/rojmel';
@@ -59,7 +60,6 @@ export const RojmelParishishtReportsModal: React.FC<Props> = ({
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [isGeneratingBatch, setIsGeneratingBatch] = useState(false);
 
-  // Sync orientation when selected Parishisht changes
   useEffect(() => {
     const tmpl = getApplicableParishishtTemplate(selectedParishishtNo, documentDate, forcedVersion);
     setSelectedOrientation(tmpl.orientation);
@@ -70,6 +70,8 @@ export const RojmelParishishtReportsModal: React.FC<Props> = ({
   const availableVersions = getAvailableVersions(selectedParishishtNo);
   const currentTemplate = getApplicableParishishtTemplate(selectedParishishtNo, documentDate, forcedVersion);
   const currentRenderedData = renderParishishtData(selectedParishishtNo, rojmelEntries, heads, teacher, { documentDate, forcedVersion, orientation: selectedOrientation });
+
+  const isWorkingRef = currentTemplate.status === 'reference-working' || currentTemplate.sourceType === 'working-reference';
 
   const toggleBatchSelect = (num: ParishishtNumber) => {
     if (selectedForBatch.includes(num)) {
@@ -175,7 +177,7 @@ export const RojmelParishishtReportsModal: React.FC<Props> = ({
             </div>
             <div>
               <h3 className="font-bold text-slate-900 text-base">સત્તાવાર પરિશિષ્ટ ૦૧ થી ૧૨ ઓડિટ રિપોર્ટ એન્જિન</h3>
-              <p className="text-[10px] text-slate-400">રોજમેળ સત્તાવાર સંદર્ભ ચકાસાયેલ ઓડિટ પત્રકો</p>
+              <p className="text-[10px] text-slate-400">રોજમેળ સત્તાવાર સંદર્ભ ચકાસાયેલ અને કાર્યકારી ઓડિટ પત્રકો</p>
             </div>
           </div>
 
@@ -215,7 +217,7 @@ export const RojmelParishishtReportsModal: React.FC<Props> = ({
                 className="bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white text-[11px] font-extrabold px-3 py-1 rounded-lg shadow flex items-center gap-1"
               >
                 <Archive className="w-3.5 h-3.5" />
-                <span>{isGeneratingBatch ? 'ZIP બને છે...' : `બેચ ZIP ডાઉનલોડ (${selectedForBatch.length})`}</span>
+                <span>{isGeneratingBatch ? 'ZIP બને છે...' : `બેચ ZIP ડાઉનલોડ (${selectedForBatch.length})`}</span>
               </button>
             </div>
 
@@ -223,6 +225,7 @@ export const RojmelParishishtReportsModal: React.FC<Props> = ({
               {OFFICIAL_PARISHISHT_TEMPLATES.filter((t, i, arr) => arr.findIndex(x => x.parishishtNo === t.parishishtNo) === i).map(t => {
                 const isSelected = selectedParishishtNo === t.parishishtNo;
                 const isBatchChecked = selectedForBatch.includes(t.parishishtNo);
+                const isWorking = t.status === 'reference-working' || t.sourceType === 'working-reference';
 
                 return (
                   <div
@@ -255,22 +258,23 @@ export const RojmelParishishtReportsModal: React.FC<Props> = ({
                         </span>
                       </div>
 
-                      {t.isOfficialVerified ? (
+                      {!isWorking ? (
                         <span className="text-[10px] font-extrabold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
                           <ShieldCheck className="w-3 h-3 text-emerald-700" />
-                          <span>ચકાસાયેલ</span>
+                          <span>Reference Verified</span>
                         </span>
                       ) : (
-                        <span className="text-[10px] font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full">
-                          Pending
+                        <span className="text-[10px] font-extrabold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <Info className="w-3 h-3 text-amber-700" />
+                          <span>Reference / Working</span>
                         </span>
                       )}
                     </div>
 
                     <h4 className="font-bold text-slate-900 text-xs leading-snug">{t.nameGuj}</h4>
-                    {!t.isOfficialVerified && (
-                      <div className="text-[10px] text-amber-800 font-semibold bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
-                        ⚠️ Official reference not found — pending verification
+                    {isWorking && (
+                      <div className="text-[10px] text-amber-900 font-semibold bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
+                        સંદર્ભ આધારિત કાર્યકારી નમૂનો (Working Format)
                       </div>
                     )}
                   </div>
@@ -289,14 +293,15 @@ export const RojmelParishishtReportsModal: React.FC<Props> = ({
                   <span className="text-xs font-black bg-brand-600 text-white px-2.5 py-0.5 rounded-md">
                     પરિશિષ્ટ {String(selectedParishishtNo).padStart(2, '0')}
                   </span>
-                  {currentTemplate.isOfficialVerified ? (
+                  {!isWorkingRef ? (
                     <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md flex items-center gap-1">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>સત્તાવાર સંદર્ભ ચકાસાયેલ</span>
+                      <span>Reference Verified (સત્તાવાર સંદર્ભ ચકાસાયેલ)</span>
                     </span>
                   ) : (
-                    <span className="text-[10px] font-extrabold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-md">
-                      ⚠️ Official reference not found — pending verification
+                    <span className="text-[10px] font-extrabold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-md flex items-center gap-1">
+                      <Info className="w-3.5 h-3.5 text-amber-700" />
+                      <span>સંદર્ભ આધારિત કાર્યકારી નમૂનો (Reference / Working)</span>
                     </span>
                   )}
                 </div>
@@ -315,6 +320,16 @@ export const RojmelParishishtReportsModal: React.FC<Props> = ({
               <div>
                 <h3 className="font-bold text-slate-900 text-sm">{currentTemplate.nameGuj}</h3>
                 <p className="text-xs text-slate-500 mt-0.5">{currentTemplate.descriptionGuj}</p>
+
+                {isWorkingRef && (
+                  <div className="mt-2 bg-amber-100 border border-amber-300 text-amber-950 p-2.5 rounded-xl text-xs font-bold space-y-0.5">
+                    <div>📌 સંદર્ભ આધારિત કાર્યકારી નમૂનો</div>
+                    <div className="text-[11px] font-medium text-amber-900">
+                      Reference / Working Format — Not an official approval claim
+                    </div>
+                  </div>
+                )}
+
                 {currentTemplate.source && currentTemplate.source.startsWith('http') && (
                   <a
                     href={currentTemplate.source}
@@ -510,9 +525,9 @@ export const RojmelParishishtReportsModal: React.FC<Props> = ({
                 </div>
               ) : (
                 <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3 text-xs">
-                  {!currentTemplate.isOfficialVerified && (
+                  {isWorkingRef && (
                     <div className="bg-amber-50 border border-amber-300 text-amber-900 p-2.5 rounded-xl font-bold text-[11px] text-center">
-                      ⚠️ Official reference not found — pending verification
+                      ⚠️ સંદર્ભ આધારિત કાર્યકારી નમૂનો (Reference / Working Format — Not an official approval claim)
                     </div>
                   )}
 
